@@ -6,6 +6,7 @@ const path = require("path");
 const app = express();
 const port = 8000;
 const crypto = require("crypto");
+let submittedData = {}; 
 
 // Parse JSON bodies
 app.use(express.json());
@@ -28,49 +29,12 @@ app.use((req, res, next) => {
     return;
   }
 
-  // Assess message integrity (https://developers.asana.com/docs/message-integrity).
-  // The code below is commented because we cannot publicly share the signature's Client Secret.
-  // For more information on the Client Secret, feel free to review the link above.
-
-  // Verify that the signature exists
-  // if (!req.headers["x-asana-request-signature"]) {
-  //   console.log("Signature is missing.");
-  //   return;
-  // }
-
-  // let stringToVerify;
-  // let secret = "my_client_secret_string";
-
-  // if (req.method === "POST") {
-  //   stringToVerify = req.body.data.toString();
-  // } else if (req.method === "GET") {
-  //   stringToVerify = req._parsedUrl.query;
-  // }
-
-  // let computedSignature = crypto
-  //   .createHmac("sha256", secret)
-  //   .update(stringToVerify)
-  //   .digest("hex");
-  // if (
-  //   !crypto.timingSafeEqual(
-  //     Buffer.from(req.headers["x-asana-request-signature"]),
-  //     Buffer.from(computedSignature)
-  //   )
-  // ) {
-  //   console.log("Request cannot be verified.");
-  //   res.status(400);
-  //   return;
-  // } else {
-  //   console.log("Request verified!");
-  // }
-
   next();
 });
 
 // -------------------- Client endpoint for auth (see auth.html) --------------------
 
 app.get("/auth", (req, res) => {
-  // We recommend creating a secure Oauth flow (https://developers.asana.com/docs/oauth)
   console.log("Auth happened!");
   res.sendFile(path.join(__dirname, "/auth.html"));
 });
@@ -80,7 +44,44 @@ app.get("/auth", (req, res) => {
 // Docs: https://developers.asana.com/docs/get-widget-metadata
 app.get("/widget", (req, res) => {
   console.log("Widget happened!");
-  res.json(widget_response);
+ // console.log("Request Body:", req);
+  // Update the widget_response with submittedData
+  const updatedWidgetResponse = {
+    template: "summary_with_details_v0",
+    metadata: {
+      fields: [
+        {
+          name: "Dátum",
+          type: "datetime_with_icon",
+          datetime: submittedData.date || "No data",
+          
+        },
+        {
+          name: "Munkavégző",
+          type: "text_with_icon",
+          text: submittedData.Worker_dropdown || "No data",
+        },
+        {
+          name: "Munkavégző",
+          type: "text_with_icon",
+          text: submittedData.Worker_dropdown || "No data",
+        },
+      ],
+	  
+	  
+      footer: {
+        footer_type: "custom_text",
+        icon_url: "https://example-icon.png",
+        text: "I'm a footer"
+      },
+      num_comments: 2,
+      subicon_url: "https://placekitten.com/16/16",
+      subtitle: "I'm a subtitle",
+      title: "KM költség",
+    },
+  };
+
+  res.json(updatedWidgetResponse);
 });
 
 // Docs: https://developers.asana.com/docs/get-form-metadata
@@ -112,7 +113,21 @@ app.post("/search/attach", (req, res) => {
 // Docs: https://developers.asana.com/docs/on-submit-callback
 app.post("/form/submit", (req, res) => {
   console.log("Modal Form submitted!");
-  console.log(req.body);
+  console.log("Request Body:", req.body);
+
+  // Parse the `data` property if it exists
+  if (req.body.data) {
+    try {
+      const parsedData = JSON.parse(req.body.data);
+      submittedData = parsedData.values || {};
+    } catch (error) {
+      console.log("Error parsing data:", error);
+    }
+  }
+
+  console.log("Submitted Data:", submittedData);
+
+
   res.json(attachment_response);
 });
 
@@ -130,44 +145,37 @@ widget_response = {
   metadata: {
     fields: [
       {
-        name: "I'm a name",
+        name: "Dátum",
         type: "datetime_with_icon",
         datetime: "2012-02-22T02:06:58.147Z",
         icon_url: "https://placekitten.com/16/16",
       },
       {
-        name: "I'm a name",
-        type: "pill",
-        text: "I'm text",
-        color: "none",
-      },
-      {
-        name: "I'm a name",
+        name: "Név",
         type: "text_with_icon",
         text: "I'm text",
       },
       {
-        name: "I'm a name",
+        name: "Rendszám",
+        type: "text_with_icon",
+        text: "I'm text",
+      },
+      {
+        name: "Kilóméter",
         type: "pill",
         text: "I'm text",
         color: "hot-pink",
       },
-      {
-        name: "I'm a name",
-        type: "text_with_icon",
-        text: "I'm text",
-        icon_url: "https://placekitten.com/16/16",
-      },
     ],
     footer: {
-      "footer_type": "custom_text",
-      "icon_url": "https://example-icon.png",
-      "text": "I'm a footer"
+      footer_type: "custom_text",
+      icon_url: "https://example-icon.png",
+      text: "I'm a footer"
     },
     num_comments: 2,
     subicon_url: "https://placekitten.com/16/16",
     subtitle: "I'm a subtitle",
-    title: "I'm a Widget",
+    title: "KM költség",
   },
 };
 
@@ -179,149 +187,29 @@ form_response = {
     on_submit_callback: "https://localhost:8000/form/submit",
     fields: [
       {
-        name: "I'm a single_line_text",
-        type: "single_line_text",
-        id: "single_line_text_full_width",
-        is_required: false,
-        placeholder: "[full width]",
-        width: "full",
-      },
-      {
-        name: "I'm a single_line_text",
-        type: "single_line_text",
-        id: "single_line_text_half_width",
-        is_required: false,
-        placeholder: "[half width]",
-        width: "half",
-      },
-      {
-        name: "I'm a single_line_text with is_watched enabled",
-        type: "single_line_text",
-        id: "single_line_text_full_width_is_watched",
-        is_required: false,
-        is_watched: true,
-        placeholder: "[full width]",
-        width: "full",
-      },
-      {
-        name: "I'm a multi_line_text",
-        type: "multi_line_text",
-        id: "multi_line_text",
-        is_required: false,
-        placeholder: "[placeholder]",
-      },
-      {
-        type: "static_text",
-        id: "static_text",
-        name: "I'm a static_text",
-      },
-      {
-        name: "I'm a rich_text",
-        type: "rich_text",
-        id: "rich_text",
-        is_required: false,
-        placeholder: "[placeholder]",
-      },
-      {
-        name: "I'm a dropdown",
+        name: "Munkavégző",
         type: "dropdown",
-        id: "dropdown_half_width",
-        is_required: false,
+        id: "Worker_dropdown",
+        is_required: true,
         options: [
           {
             id: "1",
-            label: "I'm a label",
+            label: "Bányai Gábor",
           },
           {
             id: "2",
-            label: "I'm a label",
+            label: "Varga-Tóth Ádám",
             icon_url: "https://placekitten.com/16/16",
           },
         ],
         width: "half",
       },
       {
-        name: "I'm a dropdown",
-        type: "dropdown",
-        id: "dropdown_full_width",
-        is_required: false,
-        options: [
-          {
-            id: "1",
-            label: "I'm a label",
-          },
-          {
-            id: "2",
-            label: "I'm a label",
-            icon_url: "https://placekitten.com/16/16",
-          },
-        ],
-        width: "full",
-      },
-      {
-        name: "I'm a checkbox",
-        type: "checkbox",
-        id: "checkbox",
-        is_required: false,
-        options: [
-          {
-            id: "1",
-            label: "I'm a label",
-          },
-          {
-            id: "2",
-            label: "I'm a label",
-          },
-        ],
-      },
-      {
-        name: "I'm a radio_button",
-        type: "radio_button",
-        id: "radio_button",
-        is_required: false,
-        options: [
-          {
-            id: "1",
-            label: "I'm a label",
-          },
-          {
-            id: "2",
-            label: "I'm a label",
-            sub_label: "I'm a sub_label",
-          },
-        ],
-      },
-      {
-        name: "I'm a date",
+        name: "Munkavégzés Dátuma",
         type: "date",
         id: "date",
         is_required: false,
         placeholder: "[placeholder]",
-      },
-      {
-        name: "I'm a datetime",
-        type: "datetime",
-        id: "datetime",
-        is_required: false,
-        placeholder: "[placeholder]",
-      },
-      {
-        name: "I'm a typeahead",
-        type: "typeahead",
-        id: "typeahead_half_width",
-        is_required: false,
-        typeahead_url: "https://localhost:8000/search/typeahead",
-        placeholder: "[half width]",
-        width: "half",
-      },
-      {
-        name: "I'm a typeahead",
-        type: "typeahead",
-        id: "typeahead_full_width",
-        is_required: false,
-        typeahead_url: "https://localhost:8000/search/typeahead",
-        placeholder: "[full width]",
-        width: "full",
       },
     ],
     on_change_callback: "https://localhost:8000/form/onchange",
