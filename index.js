@@ -113,7 +113,7 @@ app.post('/form/submit', (req, res) => {
       submittedData = parsedData.values || {};
 	  
 	  // Log the sheet list to console
-      logSheetList();
+      logWorkspaceList();
 	  
     } catch (error) {
       console.log('Error parsing data:', error);
