@@ -40,20 +40,16 @@ app.get('/widget', (req, res) => {
     metadata: {
       fields: [
         {
-          name: 'Dátum',
+          name: 'Utolsó Módosítás Dátuma',
           type: 'datetime_with_icon',
           datetime: submittedData.date || 'No data',
         },
         {
-          name: 'Munkavégző',
+          name: 'Össz kilóméter',
           type: 'text_with_icon',
           text: submittedData.Worker_dropdown || 'No data',
         },
-        {
-          name: 'Munkavégző',
-          type: 'text_with_icon',
-          text: submittedData.Worker_dropdown || 'No data',
-        },
+    
       ],
       footer: {
         footer_type: 'custom_text',
@@ -159,6 +155,30 @@ const form_response = {
     title: "I'm a title",
     on_submit_callback: 'https://app-components-example-app.onrender.com/form/submit',
     fields: [
+		{
+        name: "Projektszám",
+        type: "single_line_text",
+        id: "ProjectNumber_SL",
+        is_required: true,
+        placeholder: "[full width]",
+        width: "full",
+      },
+		{
+        name: "Projektnév",
+        type: "single_line_text",
+        id: "ProjectName_SL",
+        is_required: false,
+        placeholder: "[full width]",
+        width: "full",
+      },
+		{
+        name: "ASANA TaskName",
+        type: "single_line_text",
+        id: "AsanaTaskName_SL",
+        is_required: false,
+        placeholder: "[full width]",
+        width: "full",
+      },
       {
         name: 'Munkavégző',
         type: 'dropdown',
@@ -183,6 +203,22 @@ const form_response = {
         id: 'date',
         is_required: false,
         placeholder: '[placeholder]',
+      },
+	  {
+        name: "Szerepkör",
+        type: "checkbox",
+        id: "checkbox",
+        is_required: false,
+        options: [
+          {
+            id: "1",
+            label: "Programozás",
+          },
+          {
+            id: "2",
+            label: "PM",
+          },
+        ],
       },
     ],
     on_change_callback: 'https://app-components-example-app.onrender.com/form/onchange',
