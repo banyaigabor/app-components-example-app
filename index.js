@@ -40,7 +40,7 @@ function logWorkspaceList() {
       console.error('Error listing workspaces:', error.message);
     });
 }
-}
+
 // Client endpoint for auth
 app.get('/auth', (req, res) => {
   console.log('Auth happened!');

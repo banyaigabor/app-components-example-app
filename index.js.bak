@@ -4,7 +4,7 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 8000;
 let submittedData = {};
-
+const smartsheet = require('smartsheet');
 // Parse JSON bodies
 app.use(express.json());
 
@@ -25,7 +25,22 @@ app.use((req, res, next) => {
 
   next();
 });
+// Smartsheet Client Configuration
+const smartsheetClient = smartsheet.createClient({ 
+  accessToken: process.env.SMARTSHEET_ACCESS_TOKEN 
+});
 
+// Function to get and log sheet list
+function logWorkspaceList() {
+  smartsheetClient.workspaces.listWorkspaces()
+    .then(function(workspaceList) {
+      console.log('Workspaces in Smartsheet:', workspaceList);
+    })
+    .catch(function(error) {
+      console.error('Error listing workspaces:', error.message);
+    });
+}
+}
 // Client endpoint for auth
 app.get('/auth', (req, res) => {
   console.log('Auth happened!');
@@ -96,6 +111,10 @@ app.post('/form/submit', (req, res) => {
     try {
       const parsedData = JSON.parse(req.body.data);
       submittedData = parsedData.values || {};
+	  
+	  // Log the sheet list to console
+      logSheetList();
+	  
     } catch (error) {
       console.log('Error parsing data:', error);
     }
@@ -110,44 +129,6 @@ const attachment_response = {
   resource_url: 'https://app-components-example-app.onrender.com',
 };
 
-const widget_response = {
-  template: 'summary_with_details_v0',
-  metadata: {
-    fields: [
-      {
-        name: 'Dátum',
-        type: 'datetime_with_icon',
-        datetime: '2012-02-22T02:06:58.147Z',
-        icon_url: 'https://placekitten.com/16/16',
-      },
-      {
-        name: 'Név',
-        type: 'text_with_icon',
-        text: "I'm text",
-      },
-      {
-        name: 'Rendszám',
-        type: 'text_with_icon',
-        text: "I'm text",
-      },
-      {
-        name: 'Kilóméter',
-        type: 'pill',
-        text: "I'm text",
-        color: 'hot-pink',
-      },
-    ],
-    footer: {
-      footer_type: 'custom_text',
-      icon_url: 'https://example-icon.png',
-      text: "I'm a footer",
-    },
-    num_comments: 2,
-    subicon_url: 'https://placekitten.com/16/16',
-    subtitle: "I'm a subtitle",
-    title: 'KM költség',
-  },
-};
 
 const form_response = {
   template: 'form_metadata_v0',
