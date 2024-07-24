@@ -106,7 +106,7 @@ app.post('/form/submit', (req, res) => {
   }
 
   console.log('Submitted Data:', submittedData);
-
+  res.json(attachment_response);
 });
 
 const attachment_response = {
