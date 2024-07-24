@@ -61,7 +61,11 @@ app.get("/widget", (req, res) => {
           type: "text_with_icon",
           text: submittedData.Worker_dropdown || "No data",
         },
-
+        {
+          name: "Munkavégző",
+          type: "text_with_icon",
+          text: submittedData.Worker_dropdown || "No data",
+        },
       ],
 	  
 	  

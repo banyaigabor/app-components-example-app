@@ -136,7 +136,7 @@ app.post("/form/submit", (req, res) => {
 
 attachment_response = {
   resource_name: "I'm an Attachment",
-  resource_url: "https://localhost:8000",
+  resource_url: "https://app-components-example-app.onrender.com:8000",
 };
 
 // Docs: https://developers.asana.com/docs/widget
@@ -184,7 +184,7 @@ form_response = {
   template: "form_metadata_v0",
   metadata: {
     title: "I'm a title",
-    on_submit_callback: "https://localhost:8000/form/submit",
+    on_submit_callback: "https://app-components-example-app.onrender.com:8000/form/submit",
     fields: [
       {
         name: "Munkavégző",
@@ -212,7 +212,7 @@ form_response = {
         placeholder: "[placeholder]",
       },
     ],
-    on_change_callback: "https://localhost:8000/form/onchange",
+    on_change_callback: "https://app-components-example-app.onrender.com:8000/form/onchange",
   },
 };
 
@@ -243,6 +243,6 @@ https
   )
   .listen(port, function () {
     console.log(
-      `Example app listening on port ${port}! Go to https://localhost:${port}/`
+      `Example app listening on port ${port}! Go to https://app-components-example-app.onrender.com:${port}/`
     );
   });
