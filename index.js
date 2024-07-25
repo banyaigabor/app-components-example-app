@@ -14,6 +14,7 @@ token.accessToken = process.env.ASANA_ACCESS_TOKEN; // Biztosítsuk, hogy a toke
 
 let tasksApiInstance = new Asana.TasksApi();
 let projectsApiInstance = new Asana.ProjectsApi();
+let usersApiInstance = new Asana.UsersApi();
 
 // Parse JSON bodies
 app.use(express.json());
@@ -59,11 +60,19 @@ async function getTaskDetails(taskId) {
     // Split task name into project number and project name
     const [projectNumber, projectTaskName] = task.name.split(' - ');
 
+    // Get users in the workspace or project
+    const usersResult = await usersApiInstance.getUsersForWorkspace({ workspace: task.workspace.gid });
+    const users = usersResult.data.map(user => ({
+      id: user.gid,
+      label: user.name,
+    }));
+
     return {
       projectName: projectName || projectTaskName,
       projectId: projectId,
       projectNumber: projectNumber,
       taskName: task.name,
+      users: users,
     };
   } catch (error) {
     console.error('Error fetching task details from Asana:', error.message);
@@ -131,17 +140,7 @@ app.get('/form/metadata', async (req, res) => {
           type: 'dropdown',
           id: 'Worker_dropdown',
           is_required: true,
-          options: [
-            {
-              id: '1',
-              label: 'Bányai Gábor',
-            },
-            {
-              id: '2',
-              label: 'Varga-Tóth Ádám',
-              icon_url: '/image/adam.jpg'
-            },
-          ],
+          options: taskDetails.users,
           width: 'half',
         },
         {
