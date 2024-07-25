@@ -89,7 +89,7 @@ app.post('/search/attach', (req, res) => {
   res.json(attachment_response);
 });
 
-app.post('/form/submit', (req, res) => {
+app.post('/form/submit', async (req, res)  => {
   console.log('Modal Form submitted!');
   console.log('Request Body:', req.body);
 
@@ -99,7 +99,8 @@ app.post('/form/submit', (req, res) => {
       submittedData = parsedData.values || {};
 	  
 	  
-    await submitDataToSheet('3802479470110596', 'ASANA Proba', 'Teszt01', submittedData);
+      await submitDataToSheet('3802479470110596', 'ASANA Proba', 'Teszt01', submittedData);
+     
       
 	  
     } catch (error) {
