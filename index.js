@@ -36,7 +36,7 @@ app.get('/auth', (req, res) => {
 // API endpoints
 app.get('/form/metadata', (req, res) => {
   console.log('Modal Form happened!');
-  console.log(req.body)
+  console.log(req)
   res.json(form_response);
 });
 
