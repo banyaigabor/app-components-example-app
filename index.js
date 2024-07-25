@@ -157,7 +157,7 @@ app.get('/form/metadata', async (req, res) => {
             {
               id: 'Varga-Tóth Ádám',
               label: 'Varga-Tóth Ádám',
-              icon_url: 'https://banyaigabor.github.io/app-components-example-app/image/adam.jpg'
+              icon_url: 'https://s3.us-east-1.amazonaws.com/asana-user-private-us-east-1/assets/23166877939657/profile_photos/1207733804382502/7839218ad96e4592637b0d8b27bca98f_27x27.png'
             },
           ],
           width: 'half',
