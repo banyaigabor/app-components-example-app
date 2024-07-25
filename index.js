@@ -44,6 +44,7 @@ async function getTaskDetails(taskId) {
   try {
     const result = await tasksApiInstance.getTask(taskId, opts);
     const task = result.data;
+    console.log('Task details:', task); // Log the task details for debugging
     const project = task.projects.length > 0 ? task.projects[0] : null;
     return {
       projectName: project ? project.name : '',
@@ -76,7 +77,7 @@ app.get('/form/metadata', async (req, res) => {
   } catch (error) {
     return res.status(500).send('Error fetching task details from Asana');
   }
-console.log(taskDetails);
+
   // Form response with initial values
   const form_response = {
     template: 'form_metadata_v0',
@@ -124,7 +125,7 @@ console.log(taskDetails);
             {
               id: '2',
               label: 'Varga-Tóth Ádám',
-              icon_url: 'image/adam.jpg'
+              icon_url: '/image/adam.jpg'
             },
           ],
           width: 'half',
