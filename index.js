@@ -71,6 +71,21 @@ async function getTaskDetails(taskId) {
   }
 }
 
+// Function to format date to YYYY-MM-DD
+function formatDate(date) {
+  const d = new Date(date);
+  let month = '' + (d.getMonth() + 1);
+  let day = '' + d.getDate();
+  const year = d.getFullYear();
+
+  if (month.length < 2) 
+    month = '0' + month;
+  if (day.length < 2) 
+    day = '0' + day;
+
+  return [year, month, day].join('-');
+}
+
 // Client endpoint for auth
 app.get('/auth', (req, res) => {
   console.log('Auth happened!');
@@ -91,6 +106,9 @@ app.get('/form/metadata', async (req, res) => {
   } catch (error) {
     return res.status(500).send('Error fetching task details from Asana');
   }
+
+  // Get current date
+  const currentDate = formatDate(new Date());
 
   // Form response with initial values
   const form_response = {
@@ -150,6 +168,7 @@ app.get('/form/metadata', async (req, res) => {
           id: 'date',
           is_required: false,
           placeholder: 'Dátum',
+          value: currentDate, // Set initial value to current date
         },
         {
           name: "Kilóméter",
