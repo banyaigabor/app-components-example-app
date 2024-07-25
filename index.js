@@ -1,10 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { logWorkspaceList, submitDataToSheet } = require('./smartsheet'); // Itt importáljuk a submitDataToSheet függvényt is
+const asana = require('asana');
+const { logWorkspaceList, submitDataToSheet } = require('./smartsheet');
 const app = express();
 const port = process.env.PORT || 8000;
 let submittedData = {};
+
+// Initialize Asana client
+const client = asana.Client.create().useAccessToken(process.env.ASANA_ACCESS_TOKEN);
 
 // Parse JSON bodies
 app.use(express.json());
@@ -27,6 +31,22 @@ app.use((req, res, next) => {
   next();
 });
 
+// Function to get task details from Asana
+async function getTaskDetails(taskId) {
+  try {
+    const task = await client.tasks.findById(taskId);
+    const project = task.memberships.length > 0 ? task.memberships[0].project : null;
+    return {
+      projectName: project ? project.name : '',
+      projectId: project ? project.gid : '',
+      taskName: task.name,
+    };
+  } catch (error) {
+    console.error('Error fetching task details from Asana:', error.message);
+    throw error;
+  }
+}
+
 // Client endpoint for auth
 app.get('/auth', (req, res) => {
   console.log('Auth happened!');
@@ -34,9 +54,113 @@ app.get('/auth', (req, res) => {
 });
 
 // API endpoints
-app.get('/form/metadata', (req, res) => {
+app.get('/form/metadata', async (req, res) => {
   console.log('Modal Form happened!');
-  console.log(req)
+  
+  // Extract query parameters
+  const { task } = req.query;
+
+  // Get task details from Asana
+  let taskDetails;
+  try {
+    taskDetails = await getTaskDetails(task);
+  } catch (error) {
+    return res.status(500).send('Error fetching task details from Asana');
+  }
+
+  // Form response with initial values
+  const form_response = {
+    template: 'form_metadata_v0',
+    metadata: {
+      title: "I'm a title",
+      on_submit_callback: 'https://app-components-example-app.onrender.com/form/submit',
+      fields: [
+        {
+          name: "Projektszám",
+          type: "single_line_text",
+          id: "ProjectNumber_SL",
+          is_required: false,
+          placeholder: "[full width]",
+          width: "full",
+          value: taskDetails.projectId, // Set initial value from Asana
+        },
+        {
+          name: "Projektnév",
+          type: "single_line_text",
+          id: "ProjectName_SL",
+          is_required: false,
+          placeholder: "[full width]",
+          width: "full",
+          value: taskDetails.projectName, // Set initial value from Asana
+        },
+        {
+          name: "ASANA TaskName",
+          type: "single_line_text",
+          id: "AsanaTaskName_SL",
+          is_required: false,
+          placeholder: "[full width]",
+          width: "full",
+          value: taskDetails.taskName, // Set initial value from Asana
+        },
+        {
+          name: 'Munkavégző',
+          type: 'dropdown',
+          id: 'Worker_dropdown',
+          is_required: true,
+          options: [
+            {
+              id: '1',
+              label: 'Bányai Gábor',
+            },
+            {
+              id: '2',
+              label: 'Varga-Tóth Ádám',
+              icon_url: '/image/adam.jpg'
+            },
+          ],
+          width: 'half',
+        },
+        {
+          name: 'Munkavégzés Dátuma',
+          type: 'date',
+          id: 'date',
+          is_required: false,
+          placeholder: 'Dátum',
+        },
+        {
+          name: "Kilóméter",
+          type: "single_line_text",
+          id: "Distance_SL",
+          is_required: false,
+          placeholder: "0",
+          width: "half",
+        },
+        {
+          name: "Szerepkör",
+          type: "radio_button",
+          id: "radio_button",
+          is_required: false,
+          options: [
+            {
+              id: "1",
+              label: "Alapértelmezett",
+            },
+            {
+              id: "2",
+              label: "Programozás",
+            },
+            {
+              id: "3",
+              label: "PM",
+              sub_label: "Semmittevő",
+            },
+          ],
+        },
+      ],
+      on_change_callback: 'https://app-components-example-app.onrender.com/form/onchange',
+    },
+  };
+
   res.json(form_response);
 });
 
@@ -87,96 +211,6 @@ app.post('/form/submit', async (req, res) => { // Aszinkron függvényként defi
 const attachment_response = {
   resource_name: "I'm an Attachment",
   resource_url: 'https://app-components-example-app.onrender.com',
-};
-
-const form_response = {
-  template: 'form_metadata_v0',
-  metadata: {
-    title: "I'm a title",
-    on_submit_callback: 'https://app-components-example-app.onrender.com/form/submit',
-    fields: [
-      {
-        name: "Projektszám",
-        type: "single_line_text",
-        id: "ProjectNumber_SL",
-        is_required: false,
-        placeholder: "[full width]",
-        width: "full",
-        value:"1235687",
-      },
-      {
-        name: "Projektnév",
-        type: "single_line_text",
-        id: "ProjectName_SL",
-        is_required: false,
-        placeholder: "[full width]",
-        width: "full",
-      },
-      {
-        name: "ASANA TaskName",
-        type: "single_line_text",
-        id: "AsanaTaskName_SL",
-        is_required: false,
-        placeholder: "[full width]",
-        width: "full",
-      },
-      {
-        name: 'Munkavégző',
-        type: 'dropdown',
-        id: 'Worker_dropdown',
-        is_required: true,
-        options: [
-          {
-            id: '1',
-            label: 'Bányai Gábor',
-          },
-          {
-            id: '2',
-            label: 'Varga-Tóth Ádám',
-            icon_url: '/image/adam.jpg'
-          },
-        ],
-        width: 'half',
-      },
-      {
-        name: 'Munkavégzés Dátuma',
-        type: 'date',
-        id: 'date',
-        is_required: false,
-        placeholder: 'Dátum',
-      },
-      {
-        name: "Kilóméter",
-        type: "single_line_text",
-        id: "Distance_SL",
-        is_required: false,
-        placeholder: "0",
-        width: "half",
-      },
-      {
-        name: "Szerepkör",
-        type: "radio_button",
-        id: "radio_button",
-        is_required: false,
-        options: [
-          {
-            id: "1",
-            label: "Alapértelmezett",
-          },
-          {
-            id: "2",
-            label: "Programozás",
-          },
-          {
-            id: "3",
-            label: "PM",
-            sub_label: "Semmittevő",
-          },
-        ],
-      },
-    ],
-    on_change_callback: 'https://app-components-example-app.onrender.com/form/onchange',
-  },
 };
 
 const typeahead_response = {
