@@ -24,7 +24,8 @@ const columnMapping = {
   Worker_dropdown: 'Munkavégző',
   date: 'Munkavégzés Dátuma',
   Distance_SL: 'Kilóméter',
-  radio_button: 'Szerepkör'
+  radio_button: 'Szerepkör',
+  PlateNumber_dropdown:'Rendszám'
 };
 
 // Function to get sheet columns and submit data to Smartsheet
