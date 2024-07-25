@@ -16,6 +16,17 @@ function logWorkspaceList() {
     });
 }
 
+// Mapping of submittedData keys to Smartsheet column names
+const columnMapping = {
+  ProjectNumber_SL: 'Projektszám',
+  ProjectName_SL: 'Projektnév',
+  AsanaTaskName_SL: 'ASANA TaskName',
+  Worker_dropdown: 'Munkavégző',
+  date: 'Munkavégzés Dátuma',
+  Distance_SL: 'Kilóméter',
+  radio_button: 'Szerepkör'
+};
+
 // Function to get sheet columns and submit data to Smartsheet
 async function submitDataToSheet(workspaceId, folderName, sheetName, submittedData) {
   try {
@@ -53,7 +64,8 @@ async function submitDataToSheet(workspaceId, folderName, sheetName, submittedDa
     const row = {
       toBottom: true,
       cells: Object.keys(submittedData).map(key => {
-        const columnId = columns[key];
+        const columnName = columnMapping[key];
+        const columnId = columns[columnName];
         if (!columnId) {
           throw new Error(`Column ID for key ${key} not found`);
         }
