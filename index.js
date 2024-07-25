@@ -1,16 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const Asana = require('asana'); // Helyes importálás
+const Asana = require('asana');
 const { logWorkspaceList, submitDataToSheet } = require('./smartsheet');
 const app = express();
 const port = process.env.PORT || 8000;
 let submittedData = {};
 
 // Initialize Asana client
-let client = Asana.ApiClient.instance;
-let token = client.authentications['token'];
-token.accessToken = process.env.ASANA_ACCESS_TOKEN; // Biztosítsuk, hogy a token helyesen van beállítva
+const client = Asana.Client.create().useAccessToken(process.env.ASANA_ACCESS_TOKEN);
 
 // Parse JSON bodies
 app.use(express.json());
