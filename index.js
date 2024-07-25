@@ -34,7 +34,7 @@ app.get('/auth', (req, res) => {
 });
 
 // API endpoints
-app.get('/widget', (req, res) => {
+/*app.get('/widget', (req, res) => {
   console.log('Widget happened!');
   const updatedWidgetResponse = {
     template: 'summary_with_details_v0',
@@ -66,7 +66,7 @@ app.get('/widget', (req, res) => {
 
   res.json(updatedWidgetResponse);
 });
-
+*/
 app.get('/form/metadata', (req, res) => {
   console.log('Modal Form happened!');
   res.json(form_response);
@@ -98,8 +98,9 @@ app.post('/form/submit', (req, res) => {
       const parsedData = JSON.parse(req.body.data);
       submittedData = parsedData.values || {};
 	  
-	  // Log the sheet list to console
-      logWorkspaceList();
+	  
+    await submitDataToSheet('3802479470110596', 'ASANA Proba', 'Teszt01', submittedData);
+      
 	  
     } catch (error) {
       console.log('Error parsing data:', error);
@@ -126,7 +127,7 @@ const form_response = {
         name: "Projektszám",
         type: "single_line_text",
         id: "ProjectNumber_SL",
-        is_required: true,
+        is_required: false,
         placeholder: "[full width]",
         width: "full",
       },
@@ -159,8 +160,7 @@ const form_response = {
           {
             id: '2',
             label: 'Varga-Tóth Ádám',
-            icon_url: 'https://placekitten.com/16/16',
-          },
+            icon_url: '/image/adam.jpg'
         ],
         width: 'half',
       },
@@ -169,21 +169,34 @@ const form_response = {
         type: 'date',
         id: 'date',
         is_required: false,
-        placeholder: '[placeholder]',
+        placeholder: 'Dátum',
       },
-	  {
+      {
+        name: "Kilóméter",
+        type: "single_line_text",
+        id: "Distance_SL",
+        is_required: false,
+        placeholder: "0",
+        width: "half",
+      },
+      {
         name: "Szerepkör",
-        type: "checkbox",
-        id: "checkbox",
+        type: "radio_button",
+        id: "radio_button",
         is_required: false,
         options: [
           {
             id: "1",
-            label: "Programozás",
+            label: "Alapértelmezett",
           },
           {
             id: "2",
+            label: "Programozás",
+          },
+          {
+            id: "3",
             label: "PM",
+            sub_label: "Semmittevő",
           },
         ],
       },
