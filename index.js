@@ -56,9 +56,13 @@ async function getTaskDetails(taskId) {
       projectId = project.gid;
     }
 
+    // Split task name into project number and project name
+    const [projectNumber, projectTaskName] = task.name.split(' - ');
+
     return {
-      projectName: projectName,
+      projectName: projectName || projectTaskName,
       projectId: projectId,
+      projectNumber: projectNumber,
       taskName: task.name,
     };
   } catch (error) {
@@ -102,7 +106,7 @@ app.get('/form/metadata', async (req, res) => {
           is_required: false,
           placeholder: "[full width]",
           width: "full",
-          value: taskDetails.projectId, // Set initial value from Asana
+          value: taskDetails.projectNumber, // Set initial value from Asana
         },
         {
           name: "Projektnév",
