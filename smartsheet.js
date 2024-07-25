@@ -20,18 +20,18 @@ function logWorkspaceList() {
 async function submitDataToSheet(workspaceId, folderName, sheetName, submittedData) {
   try {
     // Get the workspace
-    const workspaces = await smartsheetClient.workspaces.listWorkspaces();
-    const workspace = workspaces.data.find(ws => ws.id === workspaceId);
+    const workspacesResponse = await smartsheetClient.workspaces.listWorkspaces();
+    const workspace = workspacesResponse.data.find(ws => ws.id === workspaceId);
     if (!workspace) throw new Error('Workspace not found');
 
     // Get the folder in the workspace
-    const folders = await smartsheetClient.folders.listFolders({ workspaceId: workspace.id });
-    const folder = folders.data.find(f => f.name === folderName);
+    const foldersResponse = await smartsheetClient.folders.listFolders({ workspaceId: workspace.id });
+    const folder = foldersResponse.data.find(f => f.name === folderName);
     if (!folder) throw new Error('Folder not found');
 
     // Get the sheet in the folder
-    const sheets = await smartsheetClient.sheets.listSheets({ folderId: folder.id });
-    const sheet = sheets.data.find(s => s.name === sheetName);
+    const sheetsResponse = await smartsheetClient.sheets.listSheets({ folderId: folder.id });
+    const sheet = sheetsResponse.data.find(s => s.name === sheetName);
     if (!sheet) throw new Error('Sheet not found');
 
     // Get the columns of the sheet
