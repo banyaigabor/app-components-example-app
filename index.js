@@ -151,13 +151,13 @@ app.get('/form/metadata', async (req, res) => {
           is_required: true,
           options: [
             {
-              id: '1',
+              id: 'Bányai Gábor',
               label: 'Bányai Gábor',
             },
             {
-              id: '2',
+              id: 'Varga-Tóth Ádám',
               label: 'Varga-Tóth Ádám',
-              icon_url: '/image/adam.jpg'
+              icon_url: 'https://banyaigabor.github.io/app-components-example-app/image/adam.jpg'
             },
           ],
           width: 'half',
@@ -185,15 +185,15 @@ app.get('/form/metadata', async (req, res) => {
           is_required: false,
           options: [
             {
-              id: "1",
+              id: "Alapértelmezett",
               label: "Alapértelmezett",
             },
             {
-              id: "2",
+              id: "Programozás",
               label: "Programozás",
             },
             {
-              id: "3",
+              id: "PM",
               label: "PM",
               sub_label: "Semmittevő",
             },
