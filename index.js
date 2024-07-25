@@ -8,7 +8,13 @@ const port = process.env.PORT || 8000;
 let submittedData = {};
 
 // Initialize Asana client
-const client = Asana.Client.create().useAccessToken(process.env.ASANA_ACCESS_TOKEN);
+let client = Asana.ApiClient.instance;
+let token = client.authentications['token'];
+token.accessToken = process.env.ASANA_ACCESS_TOKEN; // Biztosítsuk, hogy a token helyesen van beállítva
+
+let tasksApiInstance = new Asana.TasksApi();
+let projectsApiInstance = new Asana.ProjectsApi();
+let usersApiInstance = new Asana.UsersApi();
 
 // Parse JSON bodies
 app.use(express.json());
@@ -38,15 +44,15 @@ async function getTaskDetails(taskId) {
   };
 
   try {
-    const task = await client.tasks.findById(taskId, opts);
+    const task = await tasksApiInstance.getTask(taskId, opts);
     console.log('Task details:', task); // Log the task details for debugging
     const project = task.projects.length > 0 ? task.projects[0] : null;
     let projectName = '';
     let projectId = '';
 
     if (project) {
-      const projectResult = await client.projects.findById(project.gid);
-      projectName = projectResult.name;
+      const projectResult = await projectsApiInstance.getProject(project.gid);
+      projectName = projectResult.data.name;
       projectId = project.gid;
     }
 
@@ -54,7 +60,6 @@ async function getTaskDetails(taskId) {
     const [projectNumber, projectTaskName] = task.name.includes(' - ') ? task.name.split(' - ') : [task.name, ''];
 
     // Get users in the workspace
-    let usersApiInstance = new Asana.UsersApi();
     const usersResult = await usersApiInstance.getUsersForWorkspace(task.workspace.gid);
     const users = usersResult.data.map(user => ({
       id: user.gid,
