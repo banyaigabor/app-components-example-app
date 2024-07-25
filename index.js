@@ -69,7 +69,7 @@ app.post('/form/submit', async (req, res) => { // Aszinkron függvényként defi
       logWorkspaceList();
       
       // Submit the data to Smartsheet
-      await submitDataToSheet('3802479470110596', 'ASANA Proba', 'Teszt01', submittedData);
+      await submitDataToSheet(3802479470110596, 'ASANA Proba', 'Teszt01', submittedData);
       
     } catch (error) {
       console.log('Error parsing data:', error);
