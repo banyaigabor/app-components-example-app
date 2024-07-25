@@ -56,11 +56,11 @@ async function getTaskDetails(taskId) {
       projectId = project.gid;
     }
 
-    // Split task name into project number and project name
-    const [projectNumber, projectTaskName] = task.name.split(' - ');
+    // Split project name into project number and project name
+    const [projectNumber, projectTaskName] = projectName.includes(' - ') ? projectName.split(' - ') : [projectName, ''];
 
     return {
-      projectName: projectName || projectTaskName,
+      projectName: projectTaskName || projectName,
       projectId: projectId,
       projectNumber: projectNumber,
       taskName: task.name,
