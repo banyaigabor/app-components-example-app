@@ -21,18 +21,24 @@ async function submitDataToSheet(workspaceId, folderName, sheetName, submittedDa
   try {
     // Get the workspace
     const workspacesResponse = await smartsheetClient.workspaces.listWorkspaces();
-    const workspace = workspacesResponse.data.find(ws => ws.id === workspaceId);
+    const workspace = workspacesResponse.data.find(ws => ws.id == workspaceId);
     if (!workspace) throw new Error('Workspace not found');
+
+    console.log(`Found workspace: ${workspace.name}`);
 
     // Get the folder in the workspace
     const foldersResponse = await smartsheetClient.folders.listFolders({ workspaceId: workspace.id });
     const folder = foldersResponse.data.find(f => f.name === folderName);
     if (!folder) throw new Error('Folder not found');
 
+    console.log(`Found folder: ${folder.name}`);
+
     // Get the sheet in the folder
     const sheetsResponse = await smartsheetClient.sheets.listSheets({ folderId: folder.id });
     const sheet = sheetsResponse.data.find(s => s.name === sheetName);
     if (!sheet) throw new Error('Sheet not found');
+
+    console.log(`Found sheet: ${sheet.name}`);
 
     // Get the columns of the sheet
     const sheetDetails = await smartsheetClient.sheets.getSheet({ id: sheet.id });
