@@ -1,8 +1,8 @@
 const smartsheet = require('smartsheet');
 
 // Smartsheet Client Configuration
-const smartsheetClient = smartsheet.createClient({ 
-  accessToken: process.env.SMARTSHEET_ACCESS_TOKEN 
+const smartsheetClient = smartsheet.createClient({
+  accessToken: process.env.SMARTSHEET_ACCESS_TOKEN
 });
 
 // Function to get and log sheet list
@@ -26,9 +26,9 @@ async function submitDataToSheet(workspaceId, folderName, sheetName, submittedDa
 
     console.log(`Found workspace: ${workspace.name}`);
 
-    // Get the folder in the workspace
-    const foldersResponse = await smartsheetClient.folders.listFolders({ workspaceId: workspace.id });
-    const folder = foldersResponse.data.find(f => f.name === folderName);
+    // Get the details of the workspace to find the folder
+    const workspaceDetails = await smartsheetClient.workspaces.getWorkspace({ id: workspace.id });
+    const folder = workspaceDetails.folders.find(f => f.name === folderName);
     if (!folder) throw new Error('Folder not found');
 
     console.log(`Found folder: ${folder.name}`);
