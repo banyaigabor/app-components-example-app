@@ -4,7 +4,7 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 8000;
 let submittedData = {};
-const { logWorkspaceList } = require('./smartsheet');
+const { logWorkspaceList, submitDataToSheet } = require('./smartsheet');
 // Parse JSON bodies
 app.use(express.json());
 
