@@ -33,9 +33,9 @@ async function submitDataToSheet(workspaceId, folderName, sheetName, submittedDa
 
     console.log(`Found folder: ${folder.name}`);
 
-    // Get the sheet in the folder
-    const sheetsResponse = await smartsheetClient.sheets.listSheetsInFolder({ folderId: folder.id });
-    const sheet = sheetsResponse.data.find(s => s.name === sheetName);
+    // Get the details of the folder to find the sheet
+    const folderDetails = await smartsheetClient.folders.getFolder({ id: folder.id });
+    const sheet = folderDetails.sheets.find(s => s.name === sheetName);
     if (!sheet) throw new Error('Sheet not found');
 
     console.log(`Found sheet: ${sheet.name}`);
