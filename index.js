@@ -161,6 +161,7 @@ const form_response = {
             id: '2',
             label: 'Varga-Tóth Ádám',
             icon_url: '/image/adam.jpg'
+          },
         ],
         width: 'half',
       },
