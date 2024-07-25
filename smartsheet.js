@@ -47,14 +47,24 @@ async function submitDataToSheet(workspaceId, folderName, sheetName, submittedDa
       return map;
     }, {});
 
+    console.log('Columns:', columns);
+
     // Prepare the row data
     const row = {
       toBottom: true,
-      cells: Object.keys(submittedData).map(key => ({
-        columnId: columns[key],
-        value: submittedData[key]
-      }))
+      cells: Object.keys(submittedData).map(key => {
+        const columnId = columns[key];
+        if (!columnId) {
+          throw new Error(`Column ID for key ${key} not found`);
+        }
+        return {
+          columnId: columnId,
+          value: submittedData[key]
+        };
+      })
     };
+
+    console.log('Row:', row);
 
     // Add the row to the sheet
     await smartsheetClient.sheets.addRows({ sheetId: sheet.id, body: [row] });
