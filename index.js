@@ -40,7 +40,7 @@ app.use((req, res, next) => {
 // Function to get task details from Asana
 async function getTaskDetails(taskId) {
   let opts = { 
-    'opt_fields': "name,projects"
+    'opt_fields': "name,projects,workspace"
   };
 
   try {
@@ -68,7 +68,7 @@ async function getTaskDetails(taskId) {
     }));
 
     return {
-      projectName: projectName || projectTaskName,
+      projectName: projectTaskName || projectName,
       projectId: projectId,
       projectNumber: projectNumber,
       taskName: task.name,
