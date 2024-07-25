@@ -13,6 +13,7 @@ let token = client.authentications['token'];
 token.accessToken = process.env.ASANA_ACCESS_TOKEN; // Biztosítsuk, hogy a token helyesen van beállítva
 
 let tasksApiInstance = new Asana.TasksApi();
+let projectsApiInstance = new Asana.ProjectsApi();
 
 // Parse JSON bodies
 app.use(express.json());
@@ -46,9 +47,18 @@ async function getTaskDetails(taskId) {
     const task = result.data;
     console.log('Task details:', task); // Log the task details for debugging
     const project = task.projects.length > 0 ? task.projects[0] : null;
+    let projectName = '';
+    let projectId = '';
+
+    if (project) {
+      const projectResult = await projectsApiInstance.getProject(project.gid);
+      projectName = projectResult.data.name;
+      projectId = project.gid;
+    }
+
     return {
-      projectName: project ? project.name : '',
-      projectId: project ? project.gid : '',
+      projectName: projectName,
+      projectId: projectId,
       taskName: task.name,
     };
   } catch (error) {
