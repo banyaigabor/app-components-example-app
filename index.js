@@ -181,19 +181,16 @@ app.get('/form/metadata', async (req, res) => {
           is_required: true,
           options: [
             {
-              id: userDetails.email,
-              label: userDetails.name,
+              id: 'banyai.gabor@promir.hu',
+              label: 'Bányai Gábor',
             },
             {
               id: 'vtadam@promir.hu',
               label: 'Varga-Tóth Ádám',
             },
-            {
-              id: 'banyai.gabor@promir.hu',
-              label: 'Bányai Gábor',
-            },
           ],
           width: 'half',
+          value: userDetails.email, // Set default value to the current user
         },
         {
           name: 'Rendszám',
