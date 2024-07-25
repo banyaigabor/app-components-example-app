@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const Asana = require('asana'); // Helyes importálás
+const Asana = require('asana');
 const { logWorkspaceList, submitDataToSheet } = require('./smartsheet');
 const app = express();
 const port = process.env.PORT || 8000;
@@ -11,6 +11,8 @@ let submittedData = {};
 let client = Asana.ApiClient.instance;
 let token = client.authentications['token'];
 token.accessToken = process.env.ASANA_ACCESS_TOKEN; // Biztosítsuk, hogy a token helyesen van beállítva
+
+let tasksApiInstance = new Asana.TasksApi();
 
 // Parse JSON bodies
 app.use(express.json());
@@ -35,8 +37,13 @@ app.use((req, res, next) => {
 
 // Function to get task details from Asana
 async function getTaskDetails(taskId) {
+  let opts = { 
+    'opt_fields': "name,projects"
+  };
+
   try {
-    const task = await client.tasks.getTask(taskId);
+    const result = await tasksApiInstance.getTask(taskId, opts);
+    const task = result.data;
     const project = task.projects.length > 0 ? task.projects[0] : null;
     return {
       projectName: project ? project.name : '',
@@ -117,7 +124,7 @@ app.get('/form/metadata', async (req, res) => {
             {
               id: '2',
               label: 'Varga-Tóth Ádám',
-              icon_url: '/image/adam.jpg'
+              icon_url: 'image/adam.jpg'
             },
           ],
           width: 'half',
