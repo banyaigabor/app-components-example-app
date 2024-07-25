@@ -76,7 +76,7 @@ app.get('/form/metadata', async (req, res) => {
   } catch (error) {
     return res.status(500).send('Error fetching task details from Asana');
   }
-
+console.log(taskDetails);
   // Form response with initial values
   const form_response = {
     template: 'form_metadata_v0',
