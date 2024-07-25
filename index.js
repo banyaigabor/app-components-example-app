@@ -14,7 +14,6 @@ token.accessToken = process.env.ASANA_ACCESS_TOKEN; // Biztosítsuk, hogy a toke
 
 let tasksApiInstance = new Asana.TasksApi();
 let projectsApiInstance = new Asana.ProjectsApi();
-let usersApiInstance = new Asana.UsersApi();
 
 // Parse JSON bodies
 app.use(express.json());
@@ -40,11 +39,12 @@ app.use((req, res, next) => {
 // Function to get task details from Asana
 async function getTaskDetails(taskId) {
   let opts = { 
-    'opt_fields': "name,projects,workspace"
+    'opt_fields': "name,projects"
   };
 
   try {
-    const task = await tasksApiInstance.getTask(taskId, opts);
+    const result = await tasksApiInstance.getTask(taskId, opts);
+    const task = result.data;
     console.log('Task details:', task); // Log the task details for debugging
     const project = task.projects.length > 0 ? task.projects[0] : null;
     let projectName = '';
@@ -57,21 +57,13 @@ async function getTaskDetails(taskId) {
     }
 
     // Split task name into project number and project name
-    const [projectNumber, projectTaskName] = task.name.includes(' - ') ? task.name.split(' - ') : [task.name, ''];
-
-    // Get users in the workspace
-    const usersResult = await usersApiInstance.getUsersForWorkspace(task.workspace.gid);
-    const users = usersResult.data.map(user => ({
-      id: user.gid,
-      label: user.name,
-    }));
+    const [projectNumber, projectTaskName] = task.name.split(' - ');
 
     return {
-      projectName: projectTaskName || projectName,
+      projectName: projectName || projectTaskName,
       projectId: projectId,
       projectNumber: projectNumber,
       taskName: task.name,
-      users: users,
     };
   } catch (error) {
     console.error('Error fetching task details from Asana:', error.message);
@@ -139,7 +131,17 @@ app.get('/form/metadata', async (req, res) => {
           type: 'dropdown',
           id: 'Worker_dropdown',
           is_required: true,
-          options: taskDetails.users,
+          options: [
+            {
+              id: '1',
+              label: 'Bányai Gábor',
+            },
+            {
+              id: '2',
+              label: 'Varga-Tóth Ádám',
+              icon_url: '/image/adam.jpg'
+            },
+          ],
           width: 'half',
         },
         {
