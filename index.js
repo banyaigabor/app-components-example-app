@@ -14,6 +14,7 @@ token.accessToken = process.env.ASANA_ACCESS_TOKEN; // Biztosítsuk, hogy a toke
 
 let tasksApiInstance = new Asana.TasksApi();
 let projectsApiInstance = new Asana.ProjectsApi();
+let usersApiInstance = new Asana.UsersApi();
 
 // Parse JSON bodies
 app.use(express.json());
@@ -71,6 +72,27 @@ async function getTaskDetails(taskId) {
   }
 }
 
+// Function to get user details from Asana
+async function getUserDetails(userId) {
+  let opts = { 
+    'opt_fields': "email,name"
+  };
+
+  try {
+    const result = await usersApiInstance.getUser(userId, opts);
+    const user = result.data;
+    console.log('User details:', user); // Log the user details for debugging
+
+    return {
+      email: user.email,
+      name: user.name,
+    };
+  } catch (error) {
+    console.error('Error fetching user details from Asana:', error.message);
+    throw error;
+  }
+}
+
 // Function to format date to YYYY-MM-DD
 function formatDate(date) {
   const d = new Date(date);
@@ -97,7 +119,7 @@ app.get('/form/metadata', async (req, res) => {
   console.log('Modal Form happened!');
   
   // Extract query parameters
-  const { task } = req.query;
+  const { user, task } = req.query;
 
   // Get task details from Asana
   let taskDetails;
@@ -107,6 +129,14 @@ app.get('/form/metadata', async (req, res) => {
     return res.status(500).send('Error fetching task details from Asana');
   }
 
+  // Get user details from Asana
+  let userDetails;
+  try {
+    userDetails = await getUserDetails(user);
+  } catch (error) {
+    return res.status(500).send('Error fetching user details from Asana');
+  }
+
   // Get current date
   const currentDate = formatDate(new Date());
 
@@ -114,7 +144,7 @@ app.get('/form/metadata', async (req, res) => {
   const form_response = {
     template: 'form_metadata_v0',
     metadata: {
-      title: "I'm a title",
+      title: "Kilóméter költség",
       on_submit_callback: 'https://app-components-example-app.onrender.com/form/submit',
       fields: [
         {
@@ -151,13 +181,33 @@ app.get('/form/metadata', async (req, res) => {
           is_required: true,
           options: [
             {
-              id: 'Bányai Gábor',
-              label: 'Bányai Gábor',
+              id: userDetails.email,
+              label: userDetails.name,
             },
             {
-              id: 'Varga-Tóth Ádám',
+              id: 'vtadam@promir.hu',
               label: 'Varga-Tóth Ádám',
-              icon_url: 'https://s3.us-east-1.amazonaws.com/asana-user-private-us-east-1/assets/23166877939657/profile_photos/1207733804382502/7839218ad96e4592637b0d8b27bca98f_27x27.png'
+            },
+            {
+              id: 'banyai.gabor@promir.hu',
+              label: 'Bányai Gábor',
+            },
+          ],
+          width: 'half',
+        },
+        {
+          name: 'Rendszám',
+          type: 'dropdown',
+          id: 'PlateNumber_dropdown',
+          is_required: true,
+          options: [
+            {
+              id: 'AEDH-132',
+              label: 'AEDH-132',
+            },
+            {
+              id: 'Bömös',
+              label: 'Bömös',
             },
           ],
           width: 'half',
