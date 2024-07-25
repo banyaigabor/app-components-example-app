@@ -1,14 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const Asana = require('asana');
+const asana = require('asana');
 const { logWorkspaceList, submitDataToSheet } = require('./smartsheet');
 const app = express();
 const port = process.env.PORT || 8000;
 let submittedData = {};
 
 // Initialize Asana client
-const client = Asana.Client.create().useAccessToken(process.env.ASANA_ACCESS_TOKEN);
+const client = asana.Client.create().useAccessToken(process.env.ASANA_ACCESS_TOKEN);
 
 // Parse JSON bodies
 app.use(express.json());
