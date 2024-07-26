@@ -114,6 +114,38 @@ app.get('/auth', (req, res) => {
   res.sendFile(path.join(__dirname, '/auth.html'));
 });
 
+app.get('/widget', (req, res) => {
+  console.log('Widget happened!');
+  const updatedWidgetResponse = {
+    template: 'summary_with_details_v0',
+    metadata: {
+      fields: [
+        {
+          name: 'Utolsó Módosítás Dátuma',
+          type: 'datetime_with_icon',
+          datetime: submittedData.date || 'No data',
+        },
+        {
+          name: 'Össz kilóméter',
+          type: 'text_with_icon',
+          text: submittedData.Worker_dropdown || 'No data',
+        },
+    
+      ],
+      /*footer: {
+        footer_type: 'custom_text',
+        icon_url: 'https://example-icon.png',
+        text: "I'm a footer",
+      },*/
+      num_comments: 2,
+      subicon_url: 'https://placekitten.com/16/16',
+      
+      title: 'Kilóméter költség',
+    },
+  };
+
+  res.json(updatedWidgetResponse);
+});
 // API endpoints
 app.get('/form/metadata', async (req, res) => {
   console.log('Modal Form happened!');
@@ -185,6 +217,54 @@ app.get('/form/metadata', async (req, res) => {
               label: 'Bányai Gábor',
             },
             {
+              id: 'bozoki.robert@promir.hu',
+              label: 'Bozóki Róbert',
+            },
+            {
+              id: 'bondar.balazs@promir.hu',
+              label: 'Bondár Balázs',
+            },
+            {
+              id: 'deak.adam@promir.hu',
+              label: 'Deák Ádám',
+            },
+            {
+              id: 'keller.zoltan@promir.hu',
+              label: 'Keller Zoltán',
+            },
+            {
+              id: 'klein.antal@promir.hu',
+              label: 'Klein Antal',
+            },
+            {
+              id: 'mendei.arpad@promir.hu',
+              label: 'Mendei Árpád',
+            },
+            {
+              id: 'palecska.gabor@promir.hu',
+              label: 'Palecska Gábor',
+            },
+            {
+              id: 'sinka.balazs@promir.hu',
+              label: 'Sinka Balázs',
+            },
+            {
+              id: 'szancsik.ferenc@promir.hu',
+              label: 'Szancsik Ferenc',
+            },
+            {
+              id: 'szepesi.robert@promir.hu',
+              label: 'Szepesi Róbert',
+            },
+            {
+              id: 'szollosi.sandor@promir.hu',
+              label: 'Szöllősi Sándor',
+            },
+            {
+              id: 'vargatot@promir.hu',
+              label: 'Varga-Tóth István',
+            },
+            {
               id: 'vtadam@promir.hu',
               label: 'Varga-Tóth Ádám',
             },
@@ -199,12 +279,88 @@ app.get('/form/metadata', async (req, res) => {
           is_required: true,
           options: [
             {
+              id: 'AEPD-619',
+              label: 'AEPD-619',
+            },
+            {
+              id: 'AEPD-490',
+              label: 'AELE-490',
+            },
+            {
               id: 'AEDH-132',
               label: 'AEDH-132',
             },
             {
-              id: 'Bömös',
-              label: 'Bömös',
+              id: 'AELE-490',
+              label: 'AELE-490',
+            },
+            {
+              id: 'MBN-927',
+              label: 'MBN-927',
+            },
+            {
+              id: 'MTF-396',
+              label: 'MTF-396',
+            },
+            {
+              id: 'NEK-593',
+              label: 'NEK-593',
+            },
+            {
+              id: 'NYP-188',
+              label: 'NYP-188',
+            },
+            {
+              id: 'PWF-261',
+              label: 'PWF-261',
+            },
+            {
+              id: 'RMZ-496',
+              label: 'RMZ-496',
+            },
+            {
+              id: 'RSJ-356',
+              label: 'RSJ-356',
+            },
+            {
+              id: 'SDS-109',
+              label: 'SDS-109',
+            },
+            {
+              id: 'SKV-930',
+              label: 'SKV-930',
+            },
+            {
+              id: 'TFG-467',
+              label: 'TFG-467',
+            },
+            {
+              id: 'TGK-267',
+              label: 'TGK-267',
+            },
+            {
+              id: 'LWF-099',
+              label: 'LWF-099',
+            },
+            {
+              id: 'MVU-936',
+              label: 'MVU-936',
+            },
+            {
+              id: 'PSG-689',
+              label: 'PSG-689',
+            },
+            {
+              id: 'PSG-690',
+              label: 'PSG-690',
+            },
+            {
+              id: 'GÉPKOCSI',
+              label: 'GÉPKOCSI',
+            },
+            {
+              id: 'UTAS',
+              label: 'UTAS',
             },
           ],
           width: 'half',
@@ -242,7 +398,22 @@ app.get('/form/metadata', async (req, res) => {
             {
               id: "PM",
               label: "PM",
-              sub_label: "Semmittevő",
+            },
+            {
+              id: "Tervezés",
+              label: "Tervezés",
+            },
+            {
+              id: "Szerelés",
+              label: "Szerelés",
+            },
+            {
+              id: "Beszerzés",
+              label: "Beszerzés",
+            },
+            {
+              id: "CRM",
+              label: "CRM",
             },
           ],
         },
