@@ -110,10 +110,10 @@ function formatDate(date) {
 
 // Client endpoint for auth
 app.get('/auth', (req, res) => {
-  console.log('Auth happened!');
+  console.log('Auth happenedd!');
   res.sendFile(path.join(__dirname, '/auth.html'));
 });
-
+/*
 app.get('/widget', (req, res) => {
   console.log('Widget happened!');
   const updatedWidgetResponse = {
@@ -132,11 +132,11 @@ app.get('/widget', (req, res) => {
         },
     
       ],
-      /*footer: {
+      footer: {
         footer_type: 'custom_text',
         icon_url: 'https://example-icon.png',
         text: "I'm a footer",
-      },*/
+      },
       num_comments: 2,
       subicon_url: 'https://placekitten.com/16/16',
       
@@ -146,6 +146,8 @@ app.get('/widget', (req, res) => {
 
   res.json(updatedWidgetResponse);
 });
+*/
+
 // API endpoints
 app.get('/form/metadata', async (req, res) => {
   console.log('Modal Form happened!');
