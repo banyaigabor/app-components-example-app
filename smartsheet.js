@@ -88,4 +88,31 @@ async function submitDataToSheet(workspaceId, folderName, sheetName, submittedDa
   }
 }
 
-module.exports = { logWorkspaceList, submitDataToSheet };
+// Function to get rows from a sheet
+async function getRowsFromSheet(workspaceId, folderName, sheetName) {
+  try {
+    // Get the workspace
+    const workspacesResponse = await smartsheetClient.workspaces.listWorkspaces();
+    const workspace = workspacesResponse.data.find(ws => ws.id == workspaceId);
+    if (!workspace) throw new Error('Workspace not found');
+
+    // Get the details of the workspace to find the folder
+    const workspaceDetails = await smartsheetClient.workspaces.getWorkspace({ id: workspace.id });
+    const folder = workspaceDetails.folders.find(f => f.name === folderName);
+    if (!folder) throw new Error('Folder not found');
+
+    // Get the details of the folder to find the sheet
+    const folderDetails = await smartsheetClient.folders.getFolder({ id: folder.id });
+    const sheet = folderDetails.sheets.find(s => s.name === sheetName);
+    if (!sheet) throw new Error('Sheet not found');
+
+    // Get the rows of the sheet
+    const sheetDetails = await smartsheetClient.sheets.getSheet({ id: sheet.id });
+    return sheetDetails.rows;
+  } catch (error) {
+    console.error('Error fetching rows from Smartsheet:', error.message);
+    throw error;
+  }
+}
+
+module.exports = { logWorkspaceList, submitDataToSheet, getRowsFromSheet };
