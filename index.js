@@ -162,7 +162,7 @@ app.get('/form/metadata', async (req, res) => {
   } catch (error) {
     return res.status(500).send('Error fetching custom fields for project');
   }
-console.log(customFields);
+console.log('Custom field kiírás :',customFields);
   // Get current date
   const currentDate = formatDate(new Date());
 
