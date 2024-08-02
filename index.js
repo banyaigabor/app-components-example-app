@@ -16,6 +16,7 @@ let tasksApiInstance = new Asana.TasksApi();
 let projectsApiInstance = new Asana.ProjectsApi();
 let usersApiInstance = new Asana.UsersApi();
 let customFieldSettingsApiInstance = new Asana.CustomFieldSettingsApi();
+let customFieldsApiInstance = new Asana.CustomFieldsApi();
 
 // Parse JSON bodies
 app.use(express.json());
@@ -108,6 +109,45 @@ async function getCustomFieldsForProject(projectId) {
     return result.data;
   } catch (error) {
     console.error('Error fetching custom fields for project:', error.message);
+    throw error;
+  }
+}
+
+// Function to get the custom field ID by name
+async function getCustomFieldIdByName(projectId, fieldName) {
+  try {
+    const customFields = await getCustomFieldsForProject(projectId);
+    const customField = customFields.find(field => field.custom_field.name === fieldName);
+    return customField ? customField.custom_field.gid : null;
+  } catch (error) {
+    console.error('Error fetching custom field ID:', error.message);
+    throw error;
+  }
+}
+
+// Function to update the custom field value
+async function updateCustomField(taskId, projectId, totalKilometers) {
+  try {
+    // Get the custom field ID by name
+    const customFieldGid = await getCustomFieldIdByName(projectId, 'Kilométerköltség');
+    if (!customFieldGid) {
+      console.log('Custom field "Kilométerköltség" not found.');
+      return;
+    }
+
+    let customFieldValue = { 
+      'body': { 
+        'data': { 
+          'number_value': totalKilometers 
+        }
+      }
+    };
+
+    // Update the custom field value
+    await customFieldsApiInstance.updateCustomField(customFieldGid, customFieldValue);
+    console.log(`Custom field 'Kilométerköltség' updated successfully for task ${taskId} with ${totalKilometers} kilometers.`);
+  } catch (error) {
+    console.error('Error updating custom field:', error.message);
     throw error;
   }
 }
@@ -465,6 +505,9 @@ app.post('/form/submit', async (req, res) => { // Asynchronous function
       };
       await storiesApiInstance.createStoryForTask(commentBody, taskDetails.taskId);
       
+      // Update the custom field with the total kilometers
+      await updateCustomField(taskDetails.taskId, taskDetails.projectId, totalKilometers);
+
       // Send the response including the total kilometers
       res.json({ attachment_response, totalKilometers });
     } catch (error) {
@@ -472,10 +515,9 @@ app.post('/form/submit', async (req, res) => { // Asynchronous function
       res.status(500).send('Error submitting data to Smartsheet');
       return;
     }
-  }else{
- 
-  res.json(attachment_response);
-}
+  } else {
+    res.json(attachment_response);
+  }
 });
 
 const attachment_response = {
@@ -503,4 +545,3 @@ const typeahead_response = {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
-
