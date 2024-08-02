@@ -348,7 +348,7 @@ app.get('/form/metadata', async (req, res) => {
           is_required: false,
           placeholder: "0",
           width: "half",
-          value:"0",
+          value: "0",
         },
         {
           name: "Szerepkör",
@@ -418,8 +418,11 @@ app.post('/form/submit', async (req, res) => { // Aszinkron függvényként defi
       const parsedData = JSON.parse(req.body.data);
       submittedData = parsedData.values || {};
 
+      // Extract task ID from the request body
+      const taskId = req.body.taskId || submittedData.AsanaTaskName_SL; // Adjust this line based on how the task ID is passed
+
       // Get task details to fetch the task ID
-      const taskDetails = await getTaskDetails(parsedData.AsanaTaskName_SL); // Assuming AsanaTaskName_SL contains the task ID
+      const taskDetails = await getTaskDetails(taskId); // Use the extracted task ID
       submittedData.AsanaTaskID_SL = taskDetails.taskId;
       
       // Log the sheet list to console
@@ -437,6 +440,9 @@ app.post('/form/submit', async (req, res) => { // Aszinkron függvényként defi
   }
 
   console.log('Submitted Data:', submittedData);
+  
+  // Send back a response that reloads the page
+  console.log('Submitted Data:', submittedData);
   res.json(attachment_response);
 });
 
@@ -444,7 +450,6 @@ const attachment_response = {
   resource_name: "I'm an Attachment",
   resource_url: 'https://app-components-example-app.onrender.com',
 };
-
 
 const typeahead_response = {
   items: [
@@ -466,3 +471,7 @@ const typeahead_response = {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+
+
+
