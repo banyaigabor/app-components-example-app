@@ -60,7 +60,7 @@ async function submitDataToSheet(workspaceId, folderName, sheetName, submittedDa
       return map;
     }, {});
 
-    console.log('Columns:', columns);
+  
 
     // Prepare the row data
     const row = {
@@ -78,7 +78,7 @@ async function submitDataToSheet(workspaceId, folderName, sheetName, submittedDa
       })
     };
 
-    console.log('Row:', row);
+    
 
     // Add the row to the sheet
     await smartsheetClient.sheets.addRows({ sheetId: sheet.id, body: [row] });

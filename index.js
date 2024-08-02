@@ -47,7 +47,7 @@ async function getTaskDetails(taskId) {
   try {
     const result = await tasksApiInstance.getTask(taskId, opts);
     const task = result.data;
-    console.log('Task details:', task); // Log the task details for debugging
+   
     const project = task.projects.length > 0 ? task.projects[0] : null;
     let projectName = '';
     let projectId = '';
@@ -83,7 +83,7 @@ async function getUserDetails(userId) {
   try {
     const result = await usersApiInstance.getUser(userId, opts);
     const user = result.data;
-    console.log('User details:', user); // Log the user details for debugging
+   
 
     return {
       email: user.email,
@@ -104,7 +104,7 @@ async function getCustomFieldsForProject(projectId) {
 
   try {
     const result = await customFieldSettingsApiInstance.getCustomFieldSettingsForProject(projectId, opts);
-    console.log('Custom Fields for Project:', result.data);
+ 
     return result.data;
   } catch (error) {
     console.error('Error fetching custom fields for project:', error.message);
@@ -162,7 +162,7 @@ app.get('/form/metadata', async (req, res) => {
   } catch (error) {
     return res.status(500).send('Error fetching custom fields for project');
   }
-
+console.log(customFields);
   // Get current date
   const currentDate = formatDate(new Date());
 
