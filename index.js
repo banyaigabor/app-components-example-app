@@ -46,7 +46,7 @@ async function getTaskDetails(taskId) {
   try {
     const result = await tasksApiInstance.getTask(taskId, opts);
     const task = result.data;
-    console.log('Task details:', task); // Log the task details for debugging
+
     const project = task.projects.length > 0 ? task.projects[0] : null;
     let projectName = '';
     let projectId = '';
@@ -65,7 +65,7 @@ async function getTaskDetails(taskId) {
       projectId: projectId,
       projectNumber: projectNumber,
       taskName: task.name,
-      taskId: taskId // Include the taskId here
+      taskId:taskId,
     };
   } catch (error) {
     console.error('Error fetching task details from Asana:', error.message);
@@ -82,7 +82,7 @@ async function getUserDetails(userId) {
   try {
     const result = await usersApiInstance.getUser(userId, opts);
     const user = result.data;
-    console.log('User details:', user); // Log the user details for debugging
+
 
     return {
       email: user.email,
@@ -114,11 +114,45 @@ app.get('/auth', (req, res) => {
   console.log('Auth happened!');
   res.sendFile(path.join(__dirname, '/auth.html'));
 });
+/*
+app.get('/widget', (req, res) => {
+  console.log('Widget happened!');
+  const updatedWidgetResponse = {
+    template: 'summary_with_details_v0',
+    metadata: {
+      fields: [
+        {
+          name: 'Utolsó Módosítás Dátuma',
+          type: 'datetime_with_icon',
+          datetime: submittedData.date || 'No data',
+        },
+        {
+          name: 'Össz kilométer',
+          type: 'text_with_icon',
+          text: submittedData.Worker_dropdown || 'No data',
+        },
+    
+      ],
+      footer: {
+        footer_type: 'custom_text',
+        icon_url: 'https://example-icon.png',
+        text: "I'm a footer",
+      },
+      num_comments: 2,
+      subicon_url: 'https://placekitten.com/16/16',
+      
+      title: 'ométer költség',
+    },
+  };
+
+  res.json(updatedWidgetResponse);
+});
+*/
 
 // API endpoints
 app.get('/form/metadata', async (req, res) => {
   console.log('Modal Form happened!');
-  console.log(req.query);
+  
   // Extract query parameters
   const { user, task } = req.query;
 
@@ -401,27 +435,24 @@ app.get('/search/typeahead', (req, res) => {
 
 app.post('/form/onchange', (req, res) => {
   console.log('OnChange happened!');
-  
+
   res.json(form_response);
 });
 
 app.post('/search/attach', (req, res) => {
   console.log('Attach happened!');
- 
+
   res.json(attachment_response);
 });
 
 app.post('/form/submit', async (req, res) => { // Aszinkron függvényként definiáljuk
   console.log('Modal Form submitted!');
- 
+  console.log('Request Body:', req.body);
+
   if (req.body.data) {
     try {
       const parsedData = JSON.parse(req.body.data);
       submittedData = parsedData.values || {};
-
-      // Get task details to fetch the task ID
-      const taskDetails = await getTaskDetails(parsedData.AsanaTaskName_SL); // Assuming AsanaTaskName_SL contains the task ID
-      submittedData.AsanaTaskID_SL = taskDetails.taskId;
       
       // Log the sheet list to console
       logWorkspaceList();
