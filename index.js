@@ -432,7 +432,7 @@ app.post('/form/submit', async (req, res) => { // Aszinkron függvényként defi
       await submitDataToSheet(3802479470110596, 'ASANA Proba', 'Teszt01', submittedData);
 
       // Read back the rows from the Smartsheet and calculate the total distance
-      const rows = await getRowsFromSheet(3802479470110596, 'ASANA Proba', 'Teszt01');
+      const rows = await getRowsFromSheet(3802479470110596, 'ASANA Proba', 'Teszt01', columnMapping);
       const totalDistance = rows.reduce((sum, row) => {
         const distanceCell = row.cells.find(cell => cell.columnId === columnMapping['Distance_SL']);
         return sum + (distanceCell ? parseFloat(distanceCell.value) || 0 : 0);

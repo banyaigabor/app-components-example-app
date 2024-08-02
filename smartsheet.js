@@ -89,7 +89,7 @@ async function submitDataToSheet(workspaceId, folderName, sheetName, submittedDa
 }
 
 // Function to get rows from a sheet
-async function getRowsFromSheet(workspaceId, folderName, sheetName) {
+async function getRowsFromSheet(workspaceId, folderName, sheetName, columnMapping) {
   try {
     // Get the workspace
     const workspacesResponse = await smartsheetClient.workspaces.listWorkspaces();
