@@ -16,6 +16,7 @@ let tasksApiInstance = new Asana.TasksApi();
 let projectsApiInstance = new Asana.ProjectsApi();
 let usersApiInstance = new Asana.UsersApi();
 let storiesApiInstance = new Asana.StoriesApi();
+let customFieldsApiInstance = new Asana.CustomFieldsApi();
 
 // Parse JSON bodies
 app.use(express.json());
@@ -95,6 +96,23 @@ async function getUserDetails(userId) {
   }
 }
 
+// Function to get custom fields from Asana
+async function getCustomFields(workspaceId) {
+  let opts = {
+    'limit': 50,
+    'opt_fields': "name,type"
+  };
+
+  try {
+    const result = await customFieldsApiInstance.getCustomFieldsForWorkspace(workspaceId, opts);
+    console.log('Custom Fields:', JSON.stringify(result.data, null, 2));
+    return result.data;
+  } catch (error) {
+    console.error('Error fetching custom fields from Asana:', error.message);
+    throw error;
+  }
+}
+
 // Function to format date to YYYY-MM-DD
 function formatDate(date) {
   const d = new Date(date);
@@ -121,12 +139,16 @@ app.get('/form/metadata', async (req, res) => {
   console.log('Modal Form happened!');
   // Extract query parameters
   const { user, task } = req.query;
+
+  // Fetch and log custom fields for the workspace
+  const workspaceId = "12345"; // Replace with the actual workspace ID
   try {
-    const rows = await getRowsByTaskID(3802479470110596, 'ASANA Proba', 'Teszt01', 1207656737144194);
-    console.log('Filtered Rows:', rows);
+    const customFields = await getCustomFields(workspaceId);
+    console.log('Custom Fields:', customFields);
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error fetching custom fields:', error);
   }
+
   // Get task details from Asana
   let taskDetails;
   try {
