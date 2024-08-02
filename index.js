@@ -11,7 +11,7 @@ let submittedData = {};
 let client = Asana.ApiClient.instance;
 let token = client.authentications['token'];
 token.accessToken = process.env.ASANA_ACCESS_TOKEN; // Ensure the token is set correctly
-
+let storiesApiInstance = new Asana.StoriesApi();
 let tasksApiInstance = new Asana.TasksApi();
 let projectsApiInstance = new Asana.ProjectsApi();
 let usersApiInstance = new Asana.UsersApi();
@@ -458,7 +458,13 @@ app.post('/form/submit', async (req, res) => { // Asynchronous function
 
       // Read back the rows from the Smartsheet and calculate the total distance
       const { filteredRows, totalKilometers } = await getRowsByTaskID(3802479470110596, 'ASANA Proba', 'Teszt01', taskDetails.taskId);
-
+      const commentBody = {
+        data: {
+          text: `Beírt kilométer: ${submittedData.Distance_SL}, összesen: ${totalKilometers}`
+        }
+      };
+      await storiesApiInstance.createStoryForTask(commentBody, taskDetails.taskId);
+      
       // Send the response including the total kilometers
       res.json({ attachment_response, totalKilometers });
     } catch (error) {
