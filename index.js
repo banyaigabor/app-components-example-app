@@ -466,9 +466,10 @@ app.post('/form/submit', async (req, res) => { // Asynchronous function
       res.status(500).send('Error submitting data to Smartsheet');
       return;
     }
-  }
+  }else{
  
   res.json(attachment_response);
+}
 });
 
 const attachment_response = {
