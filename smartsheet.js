@@ -25,7 +25,7 @@ const columnMapping = {
   date: 'Munkavégzés Dátuma',
   Distance_SL: 'Kilométer',
   radio_button: 'Szerepkör',
-  PlateNumber_dropdown:'Rendszám',
+  PlateNumber_dropdown: 'Rendszám',
   AsanaTaskID_SL: 'ASANA TaskID' // Add this line
 };
 
