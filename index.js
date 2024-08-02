@@ -418,33 +418,35 @@ app.post('/search/attach', (req, res) => {
 app.post('/form/submit', async (req, res) => { // Aszinkron függvényként definiáljuk
   console.log('Modal Form submitted!');
   
-
   if (req.body.data) {
     try {
       const parsedData = JSON.parse(req.body.data);
       submittedData = parsedData.values || {};
 
       // Extract task ID from the request body
-      const taskId = req.body.task || parsedData.task || parsedData.AsanaTaskName_SL; // Adjust this line based on how the task ID is passed
+      const taskId = req.body.task || parsedData.task || parsedData.AsanaTaskName_SL; 
 
       // Get task details to fetch the task ID
-      const taskDetails = await getTaskDetails(taskId); // Use the extracted task ID
+      const taskDetails = await getTaskDetails(taskId);
       submittedData.AsanaTaskID_SL = taskDetails.taskId;
-      
+
       // Log the sheet list to console
       logWorkspaceList();
-      
+
       // Submit the data to Smartsheet
       await submitDataToSheet(3802479470110596, 'ASANA Proba', 'Teszt01', submittedData);
-      
+
+      // Read back the rows from the Smartsheet and calculate the total distance
+      const { filteredRows, totalKilometers } = await getRowsByTaskID(3802479470110596, 'ASANA Proba', 'Teszt01', taskDetails.taskId);
+
+      // Send the response including the total kilometers
+      res.json({ attachment_response, totalKilometers });
     } catch (error) {
       console.log('Error parsing data:', error);
-  
       res.status(500).send('Error submitting data to Smartsheet');
       return;
     }
   }
-
  
   res.json(attachment_response);
 });

@@ -26,7 +26,7 @@ const columnMapping = {
   Distance_SL: 'Kilométer',
   radio_button: 'Szerepkör',
   PlateNumber_dropdown: 'Rendszám',
-  AsanaTaskID_SL: 'ASANA TaskID' // Add this line
+  AsanaTaskID_SL: 'ASANA TaskID' 
 };
 
 // Function to get sheet columns and submit data to Smartsheet
@@ -88,6 +88,7 @@ async function submitDataToSheet(workspaceId, folderName, sheetName, submittedDa
   }
 }
 
+// Function to get rows from a sheet by Task ID
 async function getRowsByTaskID(workspaceId, folderName, sheetName, taskId) {
   try {
     // Get the workspace
@@ -112,16 +113,42 @@ async function getRowsByTaskID(workspaceId, folderName, sheetName, taskId) {
     const taskIdColumn = sheetDetails.columns.find(col => col.title === 'ASANA TaskID');
     if (!taskIdColumn) throw new Error('ASANA TaskID column not found');
 
-    // Filter rows by Task ID
+    // Find the column ID for the 'Kilométer' column
+    const kilometerColumn = sheetDetails.columns.find(col => col.title === 'Kilométer');
+    if (!kilometerColumn) throw new Error('Kilométer column not found');
+
+    // Filter rows by Task ID and sum the kilometers
     const filteredRows = sheetDetails.rows.filter(row => {
       const taskIdCell = row.cells.find(cell => cell.columnId === taskIdColumn.id);
       return taskIdCell && taskIdCell.value === taskId;
     });
 
-    return filteredRows;
+    const totalKilometers = filteredRows.reduce((total, row) => {
+      const kilometerCell = row.cells.find(cell => cell.columnId === kilometerColumn.id);
+      return total + (kilometerCell ? parseFloat(kilometerCell.value) || 0 : 0);
+    }, 0);
+
+    return { filteredRows, totalKilometers };
   } catch (error) {
     console.error('Error fetching rows from Smartsheet:', error.message);
     throw error;
   }
 }
-module.exports = { logWorkspaceList, submitDataToSheet,getRowsByTaskID };
+
+module.exports = { logWorkspaceList, submitDataToSheet, getRowsByTaskID };
+
+// Example usage of getRowsByTaskID
+(async () => {
+  const workspaceId = 3802479470110596;
+  const folderName = 'ASANA Proba';
+  const sheetName = 'Teszt01';
+  const taskId = '1207656737144194';
+
+  try {
+    const { filteredRows, totalKilometers } = await getRowsByTaskID(workspaceId, folderName, sheetName, taskId);
+    console.log('Filtered Rows:', filteredRows);
+    console.log('Total Kilometers:', totalKilometers);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
