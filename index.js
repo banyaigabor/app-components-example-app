@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const Asana = require('asana');
-const { logWorkspaceList, submitDataToSheet, getRowsByTaskID } = require('./smartsheet');
+const { logWorkspaceList, submitDataToSheet, getRowsByTaskID, updateCustomFieldForTask, getCustomFieldGid } = require('./smartsheet');
 const app = express();
 const port = process.env.PORT || 8000;
 let submittedData = {};
@@ -10,13 +10,11 @@ let submittedData = {};
 // Initialize Asana client
 let client = Asana.ApiClient.instance;
 let token = client.authentications['token'];
-token.accessToken = process.env.ASANA_ACCESS_TOKEN;
+token.accessToken = process.env.ASANA_ACCESS_TOKEN; // Ensure the token is set correctly
 
 let tasksApiInstance = new Asana.TasksApi();
 let projectsApiInstance = new Asana.ProjectsApi();
 let usersApiInstance = new Asana.UsersApi();
-let customFieldSettingsApiInstance = new Asana.CustomFieldSettingsApi();
-let customFieldsApiInstance = new Asana.CustomFieldsApi();
 
 // Parse JSON bodies
 app.use(express.json());
@@ -33,6 +31,7 @@ app.use((req, res, next) => {
 
   if (currentDate.getTime() > new Date(expirationDate).getTime()) {
     console.log('Request expired.');
+    res.status(400).send('Request expired.');
     return;
   }
 
@@ -48,6 +47,7 @@ async function getTaskDetails(taskId) {
   try {
     const result = await tasksApiInstance.getTask(taskId, opts);
     const task = result.data;
+    console.log('Task details:', task);
     const project = task.projects.length > 0 ? task.projects[0] : null;
     let projectName = '';
     let projectId = '';
@@ -82,6 +82,7 @@ async function getUserDetails(userId) {
   try {
     const result = await usersApiInstance.getUser(userId, opts);
     const user = result.data;
+    console.log('User details:', user);
 
     return {
       email: user.email,
@@ -108,34 +109,24 @@ function formatDate(date) {
   return [year, month, day].join('-');
 }
 
-// Function to update custom field
-async function updateCustomFieldForTask(taskId, customFieldGid, value) {
-  let opts = { 
-    'data': {
-      'custom_fields': {
-        [customFieldGid]: value
-      }
-    }
-  };
-
-  try {
-    await tasksApiInstance.updateTask(taskId, opts);
-    console.log(`Custom field ${customFieldGid} updated for task ${taskId} with value ${value}`);
-  } catch (error) {
-    console.error('Error updating custom field:', error.message);
-  }
-}
-
 // Client endpoint for auth
 app.get('/auth', (req, res) => {
+  console.log('Auth happened!');
   res.sendFile(path.join(__dirname, '/auth.html'));
 });
 
 // API endpoints
 app.get('/form/metadata', async (req, res) => {
+  console.log('Modal Form happened!');
   const { user, task } = req.query;
 
-  // Get task details from Asana
+  try {
+    const rows = await getRowsByTaskID(3802479470110596, 'ASANA Proba', 'Teszt01', 1207656737144194);
+    console.log('Filtered Rows:', rows);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+
   let taskDetails;
   try {
     taskDetails = await getTaskDetails(task);
@@ -143,7 +134,6 @@ app.get('/form/metadata', async (req, res) => {
     return res.status(500).send('Error fetching task details from Asana');
   }
 
-  // Get user details from Asana
   let userDetails;
   try {
     userDetails = await getUserDetails(user);
@@ -151,10 +141,8 @@ app.get('/form/metadata', async (req, res) => {
     return res.status(500).send('Error fetching user details from Asana');
   }
 
-  // Get current date
   const currentDate = formatDate(new Date());
 
-  // Form response with initial values
   const form_response = {
     template: 'form_metadata_v0',
     metadata: {
@@ -283,45 +271,55 @@ app.get('/form/metadata', async (req, res) => {
 });
 
 app.get('/search/typeahead', (req, res) => {
+  console.log('Typeahead happened!');
   res.json(typeahead_response);
 });
 
 app.post('/form/onchange', (req, res) => {
+  console.log('OnChange happened!');
   res.json(form_response);
 });
 
 app.post('/search/attach', (req, res) => {
+  console.log('Attach happened!');
   res.json(attachment_response);
 });
 
 app.post('/form/submit', async (req, res) => {
+  console.log('Modal Form submitted!');
+
   if (req.body.data) {
     try {
       const parsedData = JSON.parse(req.body.data);
       submittedData = parsedData.values || {};
 
       const taskId = req.body.task || parsedData.task || parsedData.AsanaTaskName_SL;
+
       const taskDetails = await getTaskDetails(taskId);
       submittedData.AsanaTaskID_SL = taskDetails.taskId;
 
       logWorkspaceList();
+
       await submitDataToSheet(3802479470110596, 'ASANA Proba', 'Teszt01', submittedData);
 
       const { filteredRows, totalKilometers } = await getRowsByTaskID(3802479470110596, 'ASANA Proba', 'Teszt01', taskDetails.taskId);
 
-      const projectId = taskDetails.projectId;
-      const customFieldGid = await getCustomFieldGid(projectId, 'Kilométerköltség');
-      await updateCustomFieldForTask(taskDetails.taskId, customFieldGid, totalKilometers);
+      try {
+        const customFieldGid = await getCustomFieldGid(taskDetails.projectId, 'Kilométerköltség');
+        await updateCustomFieldForTask(taskDetails.taskId, customFieldGid, totalKilometers);
+        console.log(`Custom field "Kilométerköltség" updated with value: ${totalKilometers}`);
+      } catch (error) {
+        console.error('Error updating custom field:', error.message);
+      }
 
-      res.json({ attachment_response, totalKilometers });
+      res.json({ ...attachment_response, totalKilometers });
     } catch (error) {
       console.log('Error parsing data:', error);
       res.status(500).send('Error submitting data to Smartsheet');
-      return;
     }
+  } else {
+    res.status(400).send('No data to submit');
   }
-
-  res.json(attachment_response);
 });
 
 const attachment_response = {
@@ -331,41 +329,11 @@ const attachment_response = {
 
 const typeahead_response = {
   items: [
-    {
-      title: "I'm a title",
-      subtitle: "I'm a subtitle",
-      value: 'some_value',
-      icon_url: 'https://placekitten.com/16/16',
-    },
-    {
-      title: "I'm a title",
-      subtitle: "I'm a subtitle",
-      value: 'some_value',
-      icon_url: 'https://placekitten.com/16/16',
-    },
+    { title: "I'm a title", subtitle: "I'm a subtitle", value: 'some_value', icon_url: 'https://placekitten.com/16/16' },
+    { title: "I'm a title", subtitle: "I'm a subtitle", value: 'some_value', icon_url: 'https://placekitten.com/16/16' },
   ],
 };
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
-
-async function getCustomFieldGid(projectId, fieldName) {
-  let opts = {
-    'opt_fields': "custom_field,name"
-  };
-
-  try {
-    const result = await customFieldSettingsApiInstance.getCustomFieldSettingsForProject(projectId, opts);
-    const customFieldSetting = result.data.find(field => field.custom_field.name === fieldName);
-
-    if (!customFieldSetting) {
-      throw new Error(`Custom field ${fieldName} not found in project ${projectId}`);
-    }
-
-    return customFieldSetting.custom_field.gid;
-  } catch (error) {
-    console.error('Error fetching custom field GID:', error.message);
-    throw error;
-  }
-}

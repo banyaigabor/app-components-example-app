@@ -1,4 +1,5 @@
 const smartsheet = require('smartsheet');
+const Asana = require('asana');
 
 // Smartsheet Client Configuration
 const smartsheetClient = smartsheet.createClient({
@@ -36,19 +37,27 @@ async function submitDataToSheet(workspaceId, folderName, sheetName, submittedDa
     const workspace = workspacesResponse.data.find(ws => ws.id == workspaceId);
     if (!workspace) throw new Error('Workspace not found');
 
+    console.log(`Found workspace: ${workspace.name}`);
+
     const workspaceDetails = await smartsheetClient.workspaces.getWorkspace({ id: workspace.id });
     const folder = workspaceDetails.folders.find(f => f.name === folderName);
     if (!folder) throw new Error('Folder not found');
 
+    console.log(`Found folder: ${folder.name}`);
+
     const folderDetails = await smartsheetClient.folders.getFolder({ id: folder.id });
     const sheet = folderDetails.sheets.find(s => s.name === sheetName);
     if (!sheet) throw new Error('Sheet not found');
+
+    console.log(`Found sheet: ${sheet.name}`);
 
     const sheetDetails = await smartsheetClient.sheets.getSheet({ id: sheet.id });
     const columns = sheetDetails.columns.reduce((map, col) => {
       map[col.title] = col.id;
       return map;
     }, {});
+
+    console.log('Columns:', columns);
 
     const row = {
       toBottom: true,
@@ -64,6 +73,8 @@ async function submitDataToSheet(workspaceId, folderName, sheetName, submittedDa
         };
       })
     };
+
+    console.log('Row:', row);
 
     await smartsheetClient.sheets.addRows({ sheetId: sheet.id, body: [row] });
     console.log('Data submitted to Smartsheet');
@@ -112,4 +123,46 @@ async function getRowsByTaskID(workspaceId, folderName, sheetName, taskId) {
   }
 }
 
-module.exports = { logWorkspaceList, submitDataToSheet, getRowsByTaskID };
+// Function to get custom field GID by name for a project
+async function getCustomFieldGid(projectId, customFieldName) {
+  let customFieldSettingsApiInstance = new Asana.CustomFieldSettingsApi();
+  let opts = {
+    'limit': 50,
+    'opt_fields': "custom_field.name,custom_field.gid"
+  };
+
+  try {
+    const result = await customFieldSettingsApiInstance.getCustomFieldSettingsForProject(projectId, opts);
+    const customField = result.data.find(cf => cf.custom_field.name === customFieldName);
+    if (!customField) throw new Error(`Custom field "${customFieldName}" not found`);
+    return customField.custom_field.gid;
+  } catch (error) {
+    console.error('Error fetching custom field GID:', error.message);
+    throw error;
+  }
+}
+
+// Function to update a custom field for a task
+async function updateCustomFieldForTask(taskId, customFieldGid, value) {
+  let tasksApiInstance = new Asana.TasksApi();
+  let opts = {
+    'opt_fields': "custom_fields"
+  };
+  let body = {
+    "data": {
+      "custom_fields": {
+        [customFieldGid]: value
+      }
+    }
+  };
+
+  try {
+    const result = await tasksApiInstance.updateTask(taskId, body, opts);
+    console.log('Custom field updated:', result.data);
+  } catch (error) {
+    console.error('Error updating custom field:', error.message);
+    throw error;
+  }
+}
+
+module.exports = { logWorkspaceList, submitDataToSheet, getRowsByTaskID, updateCustomFieldForTask, getCustomFieldGid };
