@@ -114,40 +114,6 @@ app.get('/auth', (req, res) => {
   console.log('Auth happened!');
   res.sendFile(path.join(__dirname, '/auth.html'));
 });
-/*
-app.get('/widget', (req, res) => {
-  console.log('Widget happened!');
-  const updatedWidgetResponse = {
-    template: 'summary_with_details_v0',
-    metadata: {
-      fields: [
-        {
-          name: 'Utolsó Módosítás Dátuma',
-          type: 'datetime_with_icon',
-          datetime: submittedData.date || 'No data',
-        },
-        {
-          name: 'Össz kilométer',
-          type: 'text_with_icon',
-          text: submittedData.Worker_dropdown || 'No data',
-        },
-    
-      ],
-      footer: {
-        footer_type: 'custom_text',
-        icon_url: 'https://example-icon.png',
-        text: "I'm a footer",
-      },
-      num_comments: 2,
-      subicon_url: 'https://placekitten.com/16/16',
-      
-      title: 'Kilométer költség',
-    },
-  };
-
-  res.json(updatedWidgetResponse);
-});
-*/
 
 // API endpoints
 app.get('/form/metadata', async (req, res) => {
