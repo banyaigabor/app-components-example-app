@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const Asana = require('asana');
-const { logWorkspaceList, submitDataToSheet, getRowsFromSheet } = require('./smartsheet');
+const { logWorkspaceList, submitDataToSheet } = require('./smartsheet');
 const app = express();
 const port = process.env.PORT || 8000;
 let submittedData = {};
@@ -390,7 +390,9 @@ app.get('/form/metadata', async (req, res) => {
       on_change_callback: 'https://app-components-example-app.onrender.com/form/onchange',
     },
   };
-
+  const rows = await getRowsFromSheet(3802479470110596, 'ASANA Proba', 'Teszt01', columnMapping);
+  console.log(rows);
+  
   res.json(form_response);
 });
 
@@ -430,15 +432,6 @@ app.post('/form/submit', async (req, res) => { // Aszinkron függvényként defi
       
       // Submit the data to Smartsheet
       await submitDataToSheet(3802479470110596, 'ASANA Proba', 'Teszt01', submittedData);
-
-      // Read back the rows from the Smartsheet and calculate the total distance
-      const rows = await getRowsFromSheet(3802479470110596, 'ASANA Proba', 'Teszt01', columnMapping);
-      const totalDistance = rows.reduce((sum, row) => {
-        const distanceCell = row.cells.find(cell => cell.columnId === columnMapping['Distance_SL']);
-        return sum + (distanceCell ? parseFloat(distanceCell.value) || 0 : 0);
-      }, 0);
-
-      console.log(`Total Distance: ${totalDistance}`);
       
     } catch (error) {
       console.log('Error parsing data:', error);
@@ -456,6 +449,9 @@ const attachment_response = {
   resource_name: "I'm an Attachment",
   resource_url: 'https://app-components-example-app.onrender.com',
 };
+
+
+
 
 const typeahead_response = {
   items: [
@@ -477,3 +473,11 @@ const typeahead_response = {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+
+
+
+
+
+
+
