@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const Asana = require('asana');
-const { logWorkspaceList, submitDataToSheet } = require('./smartsheet');
+const { logWorkspaceList, submitDataToSheet,getRowsByTaskID } = require('./smartsheet');
 const app = express();
 const port = process.env.PORT || 8000;
 let submittedData = {};
@@ -120,7 +120,12 @@ app.get('/form/metadata', async (req, res) => {
   console.log('Modal Form happened!');
   // Extract query parameters
   const { user, task } = req.query;
-
+  try {
+    const rows = await getRowsByTaskID(3802479470110596, 'ASANA Proba', 'Teszt01', '1207656737144194');
+    console.log('Filtered Rows:', rows);
+  } catch (error) {
+    console.error('Error:', error);
+  }
   // Get task details from Asana
   let taskDetails;
   try {

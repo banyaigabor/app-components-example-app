@@ -88,4 +88,40 @@ async function submitDataToSheet(workspaceId, folderName, sheetName, submittedDa
   }
 }
 
-module.exports = { logWorkspaceList, submitDataToSheet };
+async function getRowsByTaskID(workspaceId, folderName, sheetName, taskId) {
+  try {
+    // Get the workspace
+    const workspacesResponse = await smartsheetClient.workspaces.listWorkspaces();
+    const workspace = workspacesResponse.data.find(ws => ws.id == workspaceId);
+    if (!workspace) throw new Error('Workspace not found');
+
+    // Get the details of the workspace to find the folder
+    const workspaceDetails = await smartsheetClient.workspaces.getWorkspace({ id: workspace.id });
+    const folder = workspaceDetails.folders.find(f => f.name === folderName);
+    if (!folder) throw new Error('Folder not found');
+
+    // Get the details of the folder to find the sheet
+    const folderDetails = await smartsheetClient.folders.getFolder({ id: folder.id });
+    const sheet = folderDetails.sheets.find(s => s.name === sheetName);
+    if (!sheet) throw new Error('Sheet not found');
+
+    // Get the sheet details
+    const sheetDetails = await smartsheetClient.sheets.getSheet({ id: sheet.id });
+
+    // Find the column ID for the 'ASANA TaskID' column
+    const taskIdColumn = sheetDetails.columns.find(col => col.title === 'ASANA TaskID');
+    if (!taskIdColumn) throw new Error('ASANA TaskID column not found');
+
+    // Filter rows by Task ID
+    const filteredRows = sheetDetails.rows.filter(row => {
+      const taskIdCell = row.cells.find(cell => cell.columnId === taskIdColumn.id);
+      return taskIdCell && taskIdCell.value === taskId;
+    });
+
+    return filteredRows;
+  } catch (error) {
+    console.error('Error fetching rows from Smartsheet:', error.message);
+    throw error;
+  }
+}
+module.exports = { logWorkspaceList, submitDataToSheet,getRowsByTaskID };
