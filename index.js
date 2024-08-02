@@ -446,9 +446,9 @@ app.post('/form/submit', async (req, res) => { // Aszinkron függvényként defi
       res.status(500).send('Error submitting data to Smartsheet');
       return;
     }
+  } else {
+    res.json(attachment_response);
   }
- 
-  res.json(attachment_response);
 });
 
 const attachment_response = {
