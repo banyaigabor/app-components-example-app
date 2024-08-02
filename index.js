@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const Asana = require('asana');
-const { logWorkspaceList, submitDataToSheet,getRowsByTaskID } = require('./smartsheet');
+const { logWorkspaceList, submitDataToSheet, getRowsByTaskID } = require('./smartsheet');
 const app = express();
 const port = process.env.PORT || 8000;
 let submittedData = {};
@@ -15,6 +15,7 @@ token.accessToken = process.env.ASANA_ACCESS_TOKEN; // Biztosítsuk, hogy a toke
 let tasksApiInstance = new Asana.TasksApi();
 let projectsApiInstance = new Asana.ProjectsApi();
 let usersApiInstance = new Asana.UsersApi();
+let storiesApiInstance = new Asana.StoriesApi();
 
 // Parse JSON bodies
 app.use(express.json());
@@ -439,6 +440,14 @@ app.post('/form/submit', async (req, res) => { // Aszinkron függvényként defi
       // Read back the rows from the Smartsheet and calculate the total distance
       const { filteredRows, totalKilometers } = await getRowsByTaskID(3802479470110596, 'ASANA Proba', 'Teszt01', taskDetails.taskId);
 
+      // Create a comment in Asana with the total kilometers
+      const commentBody = {
+        data: {
+          text: `Beírt kilométer: ${submittedData.Distance_SL}, összesen: ${totalKilometers}`
+        }
+      };
+      await storiesApiInstance.createStoryForTask(commentBody, taskDetails.taskId);
+
       // Send the response including the total kilometers
       res.json({ attachment_response, totalKilometers });
     } catch (error) {
@@ -455,9 +464,6 @@ const attachment_response = {
   resource_name: "I'm an Attachment",
   resource_url: 'https://app-components-example-app.onrender.com',
 };
-
-
-
 
 const typeahead_response = {
   items: [
@@ -479,11 +485,3 @@ const typeahead_response = {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
-
-
-
-
-
-
-
-
