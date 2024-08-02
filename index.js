@@ -141,7 +141,7 @@ app.get('/form/metadata', async (req, res) => {
   const { user, task } = req.query;
 
   // Fetch and log custom fields for the workspace
-  const workspaceId = "12345"; // Replace with the actual workspace ID
+  const workspaceId = 3802479470110596; // Replace with the actual workspace ID
   try {
     const customFields = await getCustomFields(workspaceId);
     console.log('Custom Fields:', customFields);
