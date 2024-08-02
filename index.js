@@ -110,7 +110,7 @@ function formatDate(date) {
 
 // Client endpoint for auth
 app.get('/auth', (req, res) => {
-  console.log('Auth happenedd!');
+  console.log('Auth happened!');
   res.sendFile(path.join(__dirname, '/auth.html'));
 });
 /*
@@ -151,7 +151,7 @@ app.get('/widget', (req, res) => {
 // API endpoints
 app.get('/form/metadata', async (req, res) => {
   console.log('Modal Form happened!');
-  
+  console.log(req.query);
   // Extract query parameters
   const { user, task } = req.query;
 
@@ -434,19 +434,19 @@ app.get('/search/typeahead', (req, res) => {
 
 app.post('/form/onchange', (req, res) => {
   console.log('OnChange happened!');
-  console.log(req.body);
+  
   res.json(form_response);
 });
 
 app.post('/search/attach', (req, res) => {
   console.log('Attach happened!');
-  console.log(req.body);
+ 
   res.json(attachment_response);
 });
 
 app.post('/form/submit', async (req, res) => { // Aszinkron függvényként definiáljuk
   console.log('Modal Form submitted!');
-  console.log('Request Body:', req.body);
+ 
 
   if (req.body.data) {
     try {
