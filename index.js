@@ -65,6 +65,7 @@ async function getTaskDetails(taskId) {
       projectId: projectId,
       projectNumber: projectNumber,
       taskName: task.name,
+      taskId: taskId // Include the taskId here
     };
   } catch (error) {
     console.error('Error fetching task details from Asana:', error.message);
@@ -126,7 +127,7 @@ app.get('/widget', (req, res) => {
           datetime: submittedData.date || 'No data',
         },
         {
-          name: 'Össz kilóméter',
+          name: 'Össz kilométer',
           type: 'text_with_icon',
           text: submittedData.Worker_dropdown || 'No data',
         },
@@ -140,7 +141,7 @@ app.get('/widget', (req, res) => {
       num_comments: 2,
       subicon_url: 'https://placekitten.com/16/16',
       
-      title: 'Kilóméter költség',
+      title: 'Kilométer költség',
     },
   };
 
@@ -178,7 +179,7 @@ app.get('/form/metadata', async (req, res) => {
   const form_response = {
     template: 'form_metadata_v0',
     metadata: {
-      title: "Kilóméter költség",
+      title: "Kilométer költség",
       on_submit_callback: 'https://app-components-example-app.onrender.com/form/submit',
       fields: [
         {
@@ -376,7 +377,7 @@ app.get('/form/metadata', async (req, res) => {
           value: currentDate, // Set initial value to current date
         },
         {
-          name: "Kilóméter",
+          name: "Kilométer",
           type: "single_line_text",
           id: "Distance_SL",
           is_required: false,
@@ -447,11 +448,14 @@ app.post('/search/attach', (req, res) => {
 app.post('/form/submit', async (req, res) => { // Aszinkron függvényként definiáljuk
   console.log('Modal Form submitted!');
  
-
   if (req.body.data) {
     try {
       const parsedData = JSON.parse(req.body.data);
       submittedData = parsedData.values || {};
+
+      // Get task details to fetch the task ID
+      const taskDetails = await getTaskDetails(parsedData.AsanaTaskName_SL); // Assuming AsanaTaskName_SL contains the task ID
+      submittedData.AsanaTaskID_SL = taskDetails.taskId;
       
       // Log the sheet list to console
       logWorkspaceList();

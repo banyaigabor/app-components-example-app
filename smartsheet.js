@@ -23,9 +23,10 @@ const columnMapping = {
   AsanaTaskName_SL: 'ASANA TaskName',
   Worker_dropdown: 'Munkavégző',
   date: 'Munkavégzés Dátuma',
-  Distance_SL: 'Kilóméter',
+  Distance_SL: 'Kilométer',
   radio_button: 'Szerepkör',
-  PlateNumber_dropdown:'Rendszám'
+  PlateNumber_dropdown:'Rendszám',
+  AsanaTaskID_SL: 'ASANA TaskID' // Add this line
 };
 
 // Function to get sheet columns and submit data to Smartsheet
