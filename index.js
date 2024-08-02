@@ -121,7 +121,7 @@ app.get('/form/metadata', async (req, res) => {
   // Extract query parameters
   const { user, task } = req.query;
   try {
-    const rows = await getRowsByTaskID(3802479470110596, 'ASANA Proba', 'Teszt01', '1207656737144194');
+    const rows = await getRowsByTaskID(3802479470110596, 'ASANA Proba', 'Teszt01', 1207656737144194);
     console.log('Filtered Rows:', rows);
   } catch (error) {
     console.error('Error:', error);
@@ -417,7 +417,7 @@ app.post('/search/attach', (req, res) => {
 
 app.post('/form/submit', async (req, res) => { // Aszinkron függvényként definiáljuk
   console.log('Modal Form submitted!');
-  console.log('Request Body:', req.body);
+  
 
   if (req.body.data) {
     try {
@@ -439,13 +439,13 @@ app.post('/form/submit', async (req, res) => { // Aszinkron függvényként defi
       
     } catch (error) {
       console.log('Error parsing data:', error);
-      console.log('Submitted Data:', submittedData);
+  
       res.status(500).send('Error submitting data to Smartsheet');
       return;
     }
   }
 
-  console.log('Submitted Data:', submittedData);
+ 
   res.json(attachment_response);
 });
 
