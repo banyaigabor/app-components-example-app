@@ -10,13 +10,12 @@ let submittedData = {};
 // Initialize Asana client
 let client = Asana.ApiClient.instance;
 let token = client.authentications['token'];
-token.accessToken = process.env.ASANA_ACCESS_TOKEN; // Biztosítsuk, hogy a token helyesen van beállítva
+token.accessToken = process.env.ASANA_ACCESS_TOKEN; // Ensure the token is set correctly
 
 let tasksApiInstance = new Asana.TasksApi();
 let projectsApiInstance = new Asana.ProjectsApi();
 let usersApiInstance = new Asana.UsersApi();
-let storiesApiInstance = new Asana.StoriesApi();
-let customFieldsApiInstance = new Asana.CustomFieldsApi();
+let customFieldSettingsApiInstance = new Asana.CustomFieldSettingsApi();
 
 // Parse JSON bodies
 app.use(express.json());
@@ -96,19 +95,19 @@ async function getUserDetails(userId) {
   }
 }
 
-// Function to get custom fields from Asana
-async function getCustomFields(workspaceId) {
-  let opts = {
-    'limit': 50,
-    'opt_fields': "name,type"
+// Function to fetch custom fields for a project
+async function getCustomFieldsForProject(projectId) {
+  let opts = { 
+    'limit': 50, 
+    'opt_fields': "custom_field,custom_field.name,custom_field.type"
   };
 
   try {
-    const result = await customFieldsApiInstance.getCustomFieldsForWorkspace(workspaceId, opts);
-    console.log('Custom Fields:', JSON.stringify(result.data, null, 2));
+    const result = await customFieldSettingsApiInstance.getCustomFieldSettingsForProject(projectId, opts);
+    console.log('Custom Fields for Project:', result.data);
     return result.data;
   } catch (error) {
-    console.error('Error fetching custom fields from Asana:', error.message);
+    console.error('Error fetching custom fields for project:', error.message);
     throw error;
   }
 }
@@ -140,15 +139,6 @@ app.get('/form/metadata', async (req, res) => {
   // Extract query parameters
   const { user, task } = req.query;
 
-  // Fetch and log custom fields for the workspace
-  const workspaceId = 3802479470110596; // Replace with the actual workspace ID
-  try {
-    const customFields = await getCustomFields(workspaceId);
-    console.log('Custom Fields:', customFields);
-  } catch (error) {
-    console.error('Error fetching custom fields:', error);
-  }
-
   // Get task details from Asana
   let taskDetails;
   try {
@@ -163,6 +153,14 @@ app.get('/form/metadata', async (req, res) => {
     userDetails = await getUserDetails(user);
   } catch (error) {
     return res.status(500).send('Error fetching user details from Asana');
+  }
+
+  // Fetch custom fields for the project
+  let customFields;
+  try {
+    customFields = await getCustomFieldsForProject(taskDetails.projectId);
+  } catch (error) {
+    return res.status(500).send('Error fetching custom fields for project');
   }
 
   // Get current date
@@ -419,7 +417,6 @@ app.get('/form/metadata', async (req, res) => {
     },
   };
 
-  
   res.json(form_response);
 });
 
@@ -438,7 +435,7 @@ app.post('/search/attach', (req, res) => {
   res.json(attachment_response);
 });
 
-app.post('/form/submit', async (req, res) => { // Aszinkron függvényként definiáljuk
+app.post('/form/submit', async (req, res) => { // Asynchronous function
   console.log('Modal Form submitted!');
   
   if (req.body.data) {
@@ -447,7 +444,7 @@ app.post('/form/submit', async (req, res) => { // Aszinkron függvényként defi
       submittedData = parsedData.values || {};
 
       // Extract task ID from the request body
-      const taskId = req.body.task || parsedData.task || parsedData.AsanaTaskName_SL; 
+      const taskId = req.body.task || parsedData.task || parsedData.AsanaTaskName_SL;
 
       // Get task details to fetch the task ID
       const taskDetails = await getTaskDetails(taskId);
@@ -462,14 +459,6 @@ app.post('/form/submit', async (req, res) => { // Aszinkron függvényként defi
       // Read back the rows from the Smartsheet and calculate the total distance
       const { filteredRows, totalKilometers } = await getRowsByTaskID(3802479470110596, 'ASANA Proba', 'Teszt01', taskDetails.taskId);
 
-      // Create a comment in Asana with the total kilometers
-      const commentBody = {
-        data: {
-          text: `Beírt kilométer: ${submittedData.Distance_SL}, összesen: ${totalKilometers}`
-        }
-      };
-      await storiesApiInstance.createStoryForTask(commentBody, taskDetails.taskId);
-
       // Send the response including the total kilometers
       res.json({ attachment_response, totalKilometers });
     } catch (error) {
@@ -477,9 +466,9 @@ app.post('/form/submit', async (req, res) => { // Aszinkron függvényként defi
       res.status(500).send('Error submitting data to Smartsheet');
       return;
     }
-  } else {
-    res.json(attachment_response);
   }
+ 
+  res.json(attachment_response);
 });
 
 const attachment_response = {
