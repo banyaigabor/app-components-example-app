@@ -10,12 +10,13 @@ let submittedData = {};
 // Initialize Asana client
 let client = Asana.ApiClient.instance;
 let token = client.authentications['token'];
-token.accessToken = process.env.ASANA_ACCESS_TOKEN; // Ensure the token is set correctly
+token.accessToken = process.env.ASANA_ACCESS_TOKEN;
 
 let tasksApiInstance = new Asana.TasksApi();
 let projectsApiInstance = new Asana.ProjectsApi();
 let usersApiInstance = new Asana.UsersApi();
 let customFieldSettingsApiInstance = new Asana.CustomFieldSettingsApi();
+let customFieldsApiInstance = new Asana.CustomFieldsApi();
 
 // Parse JSON bodies
 app.use(express.json());
@@ -47,7 +48,6 @@ async function getTaskDetails(taskId) {
   try {
     const result = await tasksApiInstance.getTask(taskId, opts);
     const task = result.data;
-    console.log('Task details:', task); // Log the task details for debugging
     const project = task.projects.length > 0 ? task.projects[0] : null;
     let projectName = '';
     let projectId = '';
@@ -58,7 +58,6 @@ async function getTaskDetails(taskId) {
       projectId = project.gid;
     }
 
-    // Split project name into project number and project name
     const [projectNumber, projectTaskName] = projectName.includes(' - ') ? projectName.split(' - ') : [projectName, ''];
 
     return {
@@ -66,7 +65,7 @@ async function getTaskDetails(taskId) {
       projectId: projectId,
       projectNumber: projectNumber,
       taskName: task.name,
-      taskId: taskId // Include the taskId here
+      taskId: taskId
     };
   } catch (error) {
     console.error('Error fetching task details from Asana:', error.message);
@@ -83,7 +82,6 @@ async function getUserDetails(userId) {
   try {
     const result = await usersApiInstance.getUser(userId, opts);
     const user = result.data;
-    console.log('User details:', user); // Log the user details for debugging
 
     return {
       email: user.email,
@@ -91,23 +89,6 @@ async function getUserDetails(userId) {
     };
   } catch (error) {
     console.error('Error fetching user details from Asana:', error.message);
-    throw error;
-  }
-}
-
-// Function to fetch custom fields for a project
-async function getCustomFieldsForProject(projectId) {
-  let opts = { 
-    'limit': 50, 
-    'opt_fields': "custom_field,custom_field.name,custom_field.type"
-  };
-
-  try {
-    const result = await customFieldSettingsApiInstance.getCustomFieldSettingsForProject(projectId, opts);
-    console.log('Custom Fields for Project:', result.data);
-    return result.data;
-  } catch (error) {
-    console.error('Error fetching custom fields for project:', error.message);
     throw error;
   }
 }
@@ -127,16 +108,33 @@ function formatDate(date) {
   return [year, month, day].join('-');
 }
 
+// Function to update custom field
+async function updateCustomFieldForTask(taskId, customFieldGid, value) {
+  let opts = { 
+    'body': {
+      'data': {
+        'custom_fields': {
+          [customFieldGid]: value
+        }
+      }
+    }
+  };
+
+  try {
+    await tasksApiInstance.updateTask(taskId, opts);
+    console.log(`Custom field ${customFieldGid} updated for task ${taskId} with value ${value}`);
+  } catch (error) {
+    console.error('Error updating custom field:', error.message);
+  }
+}
+
 // Client endpoint for auth
 app.get('/auth', (req, res) => {
-  console.log('Auth happened!');
   res.sendFile(path.join(__dirname, '/auth.html'));
 });
 
 // API endpoints
 app.get('/form/metadata', async (req, res) => {
-  console.log('Modal Form happened!');
-  // Extract query parameters
   const { user, task } = req.query;
 
   // Get task details from Asana
@@ -153,14 +151,6 @@ app.get('/form/metadata', async (req, res) => {
     userDetails = await getUserDetails(user);
   } catch (error) {
     return res.status(500).send('Error fetching user details from Asana');
-  }
-
-  // Fetch custom fields for the project
-  let customFields;
-  try {
-    customFields = await getCustomFieldsForProject(taskDetails.projectId);
-  } catch (error) {
-    return res.status(500).send('Error fetching custom fields for project');
   }
 
   // Get current date
@@ -180,7 +170,7 @@ app.get('/form/metadata', async (req, res) => {
           is_required: false,
           placeholder: "[full width]",
           width: "full",
-          value: taskDetails.projectNumber, // Set initial value from Asana
+          value: taskDetails.projectNumber,
         },
         {
           name: "Projektnév",
@@ -189,7 +179,7 @@ app.get('/form/metadata', async (req, res) => {
           is_required: false,
           placeholder: "[full width]",
           width: "full",
-          value: taskDetails.projectName, // Set initial value from Asana
+          value: taskDetails.projectName,
         },
         {
           name: "ASANA TaskName",
@@ -198,7 +188,7 @@ app.get('/form/metadata', async (req, res) => {
           is_required: false,
           placeholder: "[full width]",
           width: "full",
-          value: taskDetails.taskName, // Set initial value from Asana
+          value: taskDetails.taskName,
         },
         {
           name: 'Munkavégző',
@@ -264,7 +254,7 @@ app.get('/form/metadata', async (req, res) => {
             },
           ],
           width: 'half',
-          value: userDetails.email, // Set default value to the current user
+          value: userDetails.email,
         },
         {
           name: 'Rendszám',
@@ -365,7 +355,7 @@ app.get('/form/metadata', async (req, res) => {
           id: 'date',
           is_required: false,
           placeholder: 'Dátum',
-          value: currentDate, // Set initial value to current date
+          value: currentDate,
         },
         {
           name: "Kilométer",
@@ -421,45 +411,36 @@ app.get('/form/metadata', async (req, res) => {
 });
 
 app.get('/search/typeahead', (req, res) => {
-  console.log('Typeahead happened!');
   res.json(typeahead_response);
 });
 
 app.post('/form/onchange', (req, res) => {
-  console.log('OnChange happened!');
   res.json(form_response);
 });
 
 app.post('/search/attach', (req, res) => {
-  console.log('Attach happened!');
   res.json(attachment_response);
 });
 
-app.post('/form/submit', async (req, res) => { // Asynchronous function
-  console.log('Modal Form submitted!');
-  
+app.post('/form/submit', async (req, res) => {
   if (req.body.data) {
     try {
       const parsedData = JSON.parse(req.body.data);
       submittedData = parsedData.values || {};
 
-      // Extract task ID from the request body
       const taskId = req.body.task || parsedData.task || parsedData.AsanaTaskName_SL;
-
-      // Get task details to fetch the task ID
       const taskDetails = await getTaskDetails(taskId);
       submittedData.AsanaTaskID_SL = taskDetails.taskId;
 
-      // Log the sheet list to console
       logWorkspaceList();
-
-      // Submit the data to Smartsheet
       await submitDataToSheet(3802479470110596, 'ASANA Proba', 'Teszt01', submittedData);
 
-      // Read back the rows from the Smartsheet and calculate the total distance
       const { filteredRows, totalKilometers } = await getRowsByTaskID(3802479470110596, 'ASANA Proba', 'Teszt01', taskDetails.taskId);
 
-      // Send the response including the total kilometers
+      const projectId = taskDetails.projectId;
+      const customFieldGid = await getCustomFieldGid(projectId, 'Kilométerköltség');
+      await updateCustomFieldForTask(taskDetails.taskId, customFieldGid, totalKilometers);
+
       res.json({ attachment_response, totalKilometers });
     } catch (error) {
       console.log('Error parsing data:', error);
@@ -467,7 +448,7 @@ app.post('/form/submit', async (req, res) => { // Asynchronous function
       return;
     }
   }
- 
+
   res.json(attachment_response);
 });
 
@@ -496,3 +477,23 @@ const typeahead_response = {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+async function getCustomFieldGid(projectId, fieldName) {
+  let opts = {
+    'opt_fields': "custom_field,name"
+  };
+
+  try {
+    const result = await customFieldSettingsApiInstance.getCustomFieldSettingsForProject(projectId, opts);
+    const customFieldSetting = result.data.find(field => field.custom_field.name === fieldName);
+
+    if (!customFieldSetting) {
+      throw new Error(`Custom field ${fieldName} not found in project ${projectId}`);
+    }
+
+    return customFieldSetting.custom_field.gid;
+  } catch (error) {
+    console.error('Error fetching custom field GID:', error.message);
+    throw error;
+  }
+}
