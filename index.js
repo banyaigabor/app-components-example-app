@@ -390,8 +390,7 @@ app.get('/form/metadata', async (req, res) => {
       on_change_callback: 'https://app-components-example-app.onrender.com/form/onchange',
     },
   };
-  const rows = await getRowsFromSheet(3802479470110596, 'ASANA Proba', 'Teszt01', columnMapping);
-  console.log(rows);
+
   
   res.json(form_response);
 });
