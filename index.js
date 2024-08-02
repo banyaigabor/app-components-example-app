@@ -383,6 +383,7 @@ app.get('/form/metadata', async (req, res) => {
           is_required: false,
           placeholder: "0",
           width: "half",
+          value:0,
         },
         {
           name: "Szerepkör",
@@ -445,14 +446,17 @@ app.post('/search/attach', (req, res) => {
   res.json(attachment_response);
 });
 
-app.post('/form/submit', async (req, res) => { // Aszinkron függvényként definiáljuk
+app.post('/form/submit', async (req, res) => {
   console.log('Modal Form submitted!');
-  console.log('Request Body:', req.body);
-
+ 
   if (req.body.data) {
     try {
       const parsedData = JSON.parse(req.body.data);
       submittedData = parsedData.values || {};
+
+      // Get task details to fetch the task ID
+      const taskDetails = await getTaskDetails(parsedData.AsanaTaskName_SL); // Assuming AsanaTaskName_SL contains the task ID
+      submittedData.AsanaTaskID_SL = taskDetails.taskId;
       
       // Log the sheet list to console
       logWorkspaceList();
@@ -469,7 +473,18 @@ app.post('/form/submit', async (req, res) => { // Aszinkron függvényként defi
   }
 
   console.log('Submitted Data:', submittedData);
-  res.json(attachment_response);
+  
+  // Send back a response that reloads the page
+  res.send(`
+    <html>
+      <body>
+        <script>
+          alert("Form submitted successfully!");
+          window.location.reload();
+        </script>
+      </body>
+    </html>
+  `);
 });
 
 const attachment_response = {
