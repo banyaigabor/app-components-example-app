@@ -103,16 +103,16 @@ async function updateCustomField(taskId, customFieldName, value) {
 
     // Prepare the request body
     let opts = { 
-      'body': {
-        data: {
+      'data': {
+        custom_fields: {
           [customFieldId]: value
         }
       }
     };
 
     // Update the custom field value for the task
-    await tasksApiInstance.updateTask(taskId, opts);
-    console.log('Custom field value updated successfully');
+    const result = await tasksApiInstance.updateTask(taskId, opts);
+    console.log('Custom field value updated successfully', result);
   } catch (error) {
     console.error('Error updating custom field value:', error.message);
     throw error;
