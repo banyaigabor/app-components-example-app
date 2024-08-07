@@ -102,8 +102,8 @@ async function updateCustomField(taskId, customFieldName, value) {
     const customFieldId = customField.custom_field.gid;
 
     // Prepare the request body
-    let opts = { 
-      'data': {
+    let opts = {
+      data: {
         custom_fields: {
           [customFieldId]: value
         }
