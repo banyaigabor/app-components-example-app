@@ -109,7 +109,7 @@ async function updateCustomField(taskId, projectId, totalKilometers) {
     let customFieldValue = { 
       'body': { 
         'data': { 
-          'number_value': totalKilometers 
+          'text_value': totalKilometers 
         }
       }
     };
