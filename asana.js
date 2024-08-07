@@ -10,6 +10,7 @@ let tasksApiInstance = new Asana.TasksApi();
 let projectsApiInstance = new Asana.ProjectsApi();
 let usersApiInstance = new Asana.UsersApi();
 let customFieldSettingsApiInstance = new Asana.CustomFieldSettingsApi();
+let customFieldsApiInstance = new Asana.CustomFieldsApi();
 
 // Function to get task details from Asana
 async function getTaskDetails(taskId) {
@@ -83,9 +84,45 @@ async function getCustomFieldsForProject(projectId) {
   }
 }
 
+// Function to update custom field value for a task
+async function updateCustomField(taskId, customFieldName, value) {
+  try {
+    // Get task details to find the project ID
+    const taskDetails = await getTaskDetails(taskId);
+
+    // Get custom fields for the project
+    const customFields = await getCustomFieldsForProject(taskDetails.projectId);
+
+    // Find the custom field ID by name
+    const customField = customFields.find(field => field.custom_field.name === customFieldName);
+    if (!customField) {
+      throw new Error(`Custom field '${customFieldName}' not found`);
+    }
+
+    const customFieldId = customField.custom_field.gid;
+
+    // Prepare the request body
+    let opts = { 
+      'body': {
+        data: {
+          [customFieldId]: value
+        }
+      }
+    };
+
+    // Update the custom field value for the task
+    await tasksApiInstance.updateTask(taskId, opts);
+    console.log('Custom field value updated successfully');
+  } catch (error) {
+    console.error('Error updating custom field value:', error.message);
+    throw error;
+  }
+}
+
 module.exports = {
   getTaskDetails,
   getUserDetails,
   getCustomFieldsForProject,
+  updateCustomField,
   storiesApiInstance
 };
