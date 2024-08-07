@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { logWorkspaceList, submitDataToSheet, getRowsByTaskID } = require('./smartsheet');
-const { getTaskDetails, getUserDetails, getCustomFieldsForProject, storiesApiInstance } = require('./asana');
+const { getTaskDetails, getUserDetails, getCustomFieldsForProject, updateCustomField, storiesApiInstance } = require('./asana');
 const app = express();
 const port = process.env.PORT || 8000;
 let submittedData = {};
@@ -381,6 +381,9 @@ app.post('/form/submit', async (req, res) => { // Asynchronous function
       };
       await storiesApiInstance.createStoryForTask(commentBody, taskDetails.taskId);
       
+      // Update custom field value for the task
+      await updateCustomField(taskDetails.taskId, 'Kilométerköltség', totalKilometers);
+
       // Send the response including the total kilometers
       res.json({ attachment_response, totalKilometers });
     } catch (error) {
