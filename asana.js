@@ -103,10 +103,8 @@ async function updateCustomField(taskId, customFieldName, value) {
 
     // Prepare the request body
     let opts = {
-      data: {
-        custom_fields: {
-          [customFieldId]: value
-        }
+      custom_fields: {
+        [customFieldId]: value
       }
     };
 
