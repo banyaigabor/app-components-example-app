@@ -128,5 +128,6 @@ module.exports = {
   getUserDetails,
   getCustomFieldsForProject,
   updateCustomField,
+  getCustomFieldIdByName,
   storiesApiInstance
 };

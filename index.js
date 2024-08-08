@@ -3,7 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const NodePowershell = require('node-powershell');
 const { logWorkspaceList, submitDataToSheet, getRowsByTaskID } = require('./smartsheet');
-const { getTaskDetails, getUserDetails, getCustomFieldsForProject, updateCustomField, storiesApiInstance } = require('./asana');
+const { getTaskDetails, getUserDetails, getCustomFieldsForProject, updateCustomField,getCustomFieldIdByName, storiesApiInstance } = require('./asana');
 const app = express();
 const port = process.env.PORT || 8000;
 let submittedData = {};
@@ -405,7 +405,7 @@ app.post('/form/submit', async (req, res) => {
       await storiesApiInstance.createStoryForTask(commentBody, taskDetails.taskId);
       
       // Update custom field value for the task
-      //await updateCustomField(taskDetails.taskId, taskDetails.projectId, 'Kilométer', totalKilometers);
+      await updateCustomField(taskDetails.taskId, taskDetails.projectId, 'Kilométer', totalKilometers);
 
       // Run PowerShell script to update custom field in Asana
       const asanaAccessToken = process.env.ASANA_ACCESS_TOKEN; // Ensure the token is set correctly
