@@ -1,9 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const NodePowershell = require('node-powershell');
 const { logWorkspaceList, submitDataToSheet, getRowsByTaskID } = require('./smartsheet');
 const { getTaskDetails, getUserDetails, getCustomFieldsForProject, updateCustomField,getCustomFieldIdByName, storiesApiInstance } = require('./asana');
+const NodePowershell = require('node-powershell');
 const app = express();
 const port = process.env.PORT || 8000;
 let submittedData = {};
@@ -45,7 +45,7 @@ function formatDate(date) {
 }
 
 // Function to run PowerShell script
-async function runPowerShellScript(taskId, customFieldId, asanaAccessToken,distance) {
+async function runPowerShellScript(taskId, customFieldId, asanaAccessToken) {
   const ps = new NodePowershell({
     executionPolicy: 'Bypass',
     noProfile: true
@@ -56,7 +56,7 @@ async function runPowerShellScript(taskId, customFieldId, asanaAccessToken,dista
   $headers.Add("accept", "application/json")
   $headers.Add("content-type", "application/json")
   $headers.Add("authorization", "Bearer ${asanaAccessToken}")
-  $response = Invoke-WebRequest -Uri 'https://app.asana.com/api/1.0/tasks/${taskId}' -Method PUT -Headers $headers -ContentType 'application/json' -Body '{"data":{"custom_fields":{"${customFieldId}":"${distance}"}}}'
+  $response = Invoke-WebRequest -Uri 'https://app.asana.com/api/1.0/tasks/${taskId}' -Method PUT -Headers $headers -ContentType 'application/json' -Body '{"data":{"custom_fields":{"${customFieldId}":"123"}}}'
   `;
 
   ps.addCommand(script);
@@ -410,7 +410,7 @@ app.post('/form/submit', async (req, res) => {
       // Run PowerShell script to update custom field in Asana
       const asanaAccessToken = process.env.ASANA_ACCESS_TOKEN; // Ensure the token is set correctly
       const customFieldId = await getCustomFieldIdByName(taskDetails.projectId, 'Kilométer');
-      await runPowerShellScript(taskDetails.taskId, customFieldId, asanaAccessToken,totalKilometers);
+      await runPowerShellScript(taskDetails.taskId, customFieldId, asanaAccessToken);
 
       // Send the response including the total kilometers
       res.json({ attachment_response, totalKilometers });
