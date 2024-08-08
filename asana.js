@@ -10,7 +10,6 @@ let tasksApiInstance = new Asana.TasksApi();
 let projectsApiInstance = new Asana.ProjectsApi();
 let usersApiInstance = new Asana.UsersApi();
 let customFieldSettingsApiInstance = new Asana.CustomFieldSettingsApi();
-let customFieldsApiInstance = new Asana.CustomFieldsApi();
 
 // Function to get task details from Asana
 async function getTaskDetails(taskId) {
@@ -106,16 +105,14 @@ async function updateCustomField(taskId, projectId, totalKilometers) {
       return;
     }
 
-    let customFieldValue = { 
-      'body': { 
-        'data': { 
-          'number_value': totalKilometers 
-        }
-      }
+    // Prepare the custom field update data
+    let updateData = {
+      custom_fields: {}
     };
+    updateData.custom_fields[customFieldGid] = totalKilometers;
 
-    // Update the custom field value
-    await customFieldsApiInstance.updateCustomField(customFieldGid, customFieldValue);
+    // Update the task with the custom field value
+    await tasksApiInstance.updateTask(taskId, { data: updateData });
     console.log(`Custom field 'Kilométerköltség' updated successfully for task ${taskId} with ${totalKilometers} kilometers.`);
   } catch (error) {
     console.error('Error updating custom field:', error.message);
