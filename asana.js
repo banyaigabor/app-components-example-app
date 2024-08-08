@@ -105,7 +105,7 @@ async function updateCustomField(taskId, projectId, totalKilometers) {
       throw new Error('Custom field "Kilométer" not found');
     }
 
-    let body = { "data": { "custom_fields": { [customFieldGid]: totalKilometers.toString() } } }; // Use customFieldGid dynamically
+    let body = { "data": { "custom_fields": customFieldGid , totalKilometers  } }; // Use customFieldGid dynamically
     let opts = {};
     tasksApiInstance.updateTask(taskId, body, opts).then((result) => {
       console.log('API called successfully.');
