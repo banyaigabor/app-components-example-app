@@ -46,7 +46,7 @@ function formatDate(date) {
 
 // Function to run PowerShell script
 async function runPowerShellScript(taskId, customFieldId, asanaAccessToken) {
-  const ps = new Powershell({
+  var ps = new Powershell({
     executionPolicy: 'Bypass',
     noProfile: true
   });
