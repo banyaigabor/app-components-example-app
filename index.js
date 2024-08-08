@@ -2,9 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { logWorkspaceList, submitDataToSheet, getRowsByTaskID } = require('./smartsheet');
-const { getTaskDetails, getUserDetails, getCustomFieldsForProject, updateCustomField,getCustomFieldIdByName, storiesApiInstance } = require('./asana');
-
-const NodePowershell = require('node-powershell');
+const { getTaskDetails, getUserDetails, getCustomFieldsForProject, updateCustomField, getCustomFieldIdByName, storiesApiInstance } = require('./asana');
+const { execFile } = require('child_process');
 const app = express();
 const port = process.env.PORT || 8000;
 let submittedData = {};
@@ -45,28 +44,21 @@ function formatDate(date) {
   return [year, month, day].join('-');
 }
 
-// Function to run PowerShell script
-async function runPowerShellScript(taskId, customFieldId, asanaAccessToken) {
-  let psh = new NodePowershell();
-
-  const script = `
-  $headers=@{}
-  $headers.Add("accept", "application/json")
-  $headers.Add("content-type", "application/json")
-  $headers.Add("authorization", "Bearer ${asanaAccessToken}")
-  $response = Invoke-WebRequest -Uri 'https://app.asana.com/api/1.0/tasks/${taskId}' -Method PUT -Headers $headers -ContentType 'application/json' -Body '{"data":{"custom_fields":{"${customFieldId}":"123"}}}'
-  `;
-
-  psh.addCommand(script);
-
-  try {
-    const output = await ps.invoke();
-    console.log(output);
-  } catch (error) {
-    console.error(error);
-  } finally {
-    psh.dispose();
-  }
+// Function to run Swift script
+async function runSwiftScript(taskId, customFieldId, asanaAccessToken) {
+  return new Promise((resolve, reject) => {
+    execFile('swift', ['updateField.swift', taskId, customFieldId, asanaAccessToken], (error, stdout, stderr) => {
+      if (error) {
+        reject(`error: ${error.message}`);
+        return;
+      }
+      if (stderr) {
+        reject(`stderr: ${stderr}`);
+        return;
+      }
+      resolve(stdout);
+    });
+  });
 }
 
 // Client endpoint for auth
@@ -400,15 +392,16 @@ app.post('/form/submit', async (req, res) => {
           text: `Beírt kilométer: ${submittedData.Distance_SL}, összesen: ${totalKilometers}`
         }
       };
-      await storiesApiInstance.createStoryForTask(commentBody, taskDetails.taskId);
+      await storiesApiInstance.createStoryForTask(taskDetails.taskId, commentBody);
       
       // Update custom field value for the task
       await updateCustomField(taskDetails.taskId, taskDetails.projectId, 'Kilométer', totalKilometers);
 
-      // Run PowerShell script to update custom field in Asana
+      // Run Swift script to update custom field in Asana
       const asanaAccessToken = process.env.ASANA_ACCESS_TOKEN; // Ensure the token is set correctly
       const customFieldId = await getCustomFieldIdByName(taskDetails.projectId, 'Kilométer');
-      await runPowerShellScript(taskDetails.taskId, customFieldId, asanaAccessToken);
+      const swiftOutput = await runSwiftScript(taskDetails.taskId, customFieldId, asanaAccessToken);
+      console.log('Swift output:', swiftOutput);
 
       // Send the response including the total kilometers
       res.json({ attachment_response, totalKilometers });
