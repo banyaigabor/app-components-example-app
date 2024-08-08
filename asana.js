@@ -107,12 +107,14 @@ async function updateCustomField(taskId, projectId, totalKilometers) {
 
     // Prepare the custom field update data
     let updateData = {
-      custom_fields: {}
+      data: {
+        custom_fields: {}
+      }
     };
-    updateData.custom_fields[customFieldGid] = totalKilometers;
+    updateData.data.custom_fields[customFieldGid] = totalKilometers;
 
     // Update the task with the custom field value
-    await tasksApiInstance.updateTask(taskId, { custom_fields: updateData.custom_fields });
+    await tasksApiInstance.updateTask(taskId, updateData);
     console.log(`Custom field 'Kilométer' updated successfully for task ${taskId} with ${totalKilometers} kilometers.`);
   } catch (error) {
     console.error('Error updating custom field:', error.message);
