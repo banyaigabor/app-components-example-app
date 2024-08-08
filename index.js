@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const NodePowershell = require('node-powershell');
 const { logWorkspaceList, submitDataToSheet, getRowsByTaskID } = require('./smartsheet');
 const { getTaskDetails, getUserDetails, getCustomFieldsForProject, updateCustomField, storiesApiInstance } = require('./asana');
 const app = express();
@@ -43,6 +44,33 @@ function formatDate(date) {
   return [year, month, day].join('-');
 }
 
+// Function to run PowerShell script
+async function runPowerShellScript(taskId, customFieldId, asanaAccessToken,distance) {
+  const ps = new NodePowershell({
+    executionPolicy: 'Bypass',
+    noProfile: true
+  });
+
+  const script = `
+  $headers=@{}
+  $headers.Add("accept", "application/json")
+  $headers.Add("content-type", "application/json")
+  $headers.Add("authorization", "Bearer ${asanaAccessToken}")
+  $response = Invoke-WebRequest -Uri 'https://app.asana.com/api/1.0/tasks/${taskId}' -Method PUT -Headers $headers -ContentType 'application/json' -Body '{"data":{"custom_fields":{"${customFieldId}":"${distance}"}}}'
+  `;
+
+  ps.addCommand(script);
+
+  try {
+    const output = await ps.invoke();
+    console.log(output);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    ps.dispose();
+  }
+}
+
 // Client endpoint for auth
 app.get('/auth', (req, res) => {
   console.log('Auth happened!');
@@ -52,10 +80,8 @@ app.get('/auth', (req, res) => {
 // API endpoints
 app.get('/form/metadata', async (req, res) => {
   console.log('Modal Form happened!');
-  // Extract query parameters
   const { user, task } = req.query;
 
-  // Get task details from Asana
   let taskDetails;
   try {
     taskDetails = await getTaskDetails(task);
@@ -63,7 +89,6 @@ app.get('/form/metadata', async (req, res) => {
     return res.status(500).send('Error fetching task details from Asana');
   }
 
-  // Get user details from Asana
   let userDetails;
   try {
     userDetails = await getUserDetails(user);
@@ -71,7 +96,6 @@ app.get('/form/metadata', async (req, res) => {
     return res.status(500).send('Error fetching user details from Asana');
   }
 
-  // Fetch custom fields for the project
   let customFields;
   try {
     customFields = await getCustomFieldsForProject(taskDetails.projectId);
@@ -80,10 +104,8 @@ app.get('/form/metadata', async (req, res) => {
   }
   console.log('Custom field kiírás :', customFields);
 
-  // Get current date
   const currentDate = formatDate(new Date());
 
-  // Form response with initial values
   const form_response = {
     template: 'form_metadata_v0',
     metadata: {
@@ -97,7 +119,7 @@ app.get('/form/metadata', async (req, res) => {
           is_required: false,
           placeholder: "[full width]",
           width: "full",
-          value: taskDetails.projectNumber, // Set initial value from Asana
+          value: taskDetails.projectNumber,
         },
         {
           name: "Projektnév",
@@ -106,7 +128,7 @@ app.get('/form/metadata', async (req, res) => {
           is_required: false,
           placeholder: "[full width]",
           width: "full",
-          value: taskDetails.projectName, // Set initial value from Asana
+          value: taskDetails.projectName,
         },
         {
           name: "ASANA TaskName",
@@ -115,7 +137,7 @@ app.get('/form/metadata', async (req, res) => {
           is_required: false,
           placeholder: "[full width]",
           width: "full",
-          value: taskDetails.taskName, // Set initial value from Asana
+          value: taskDetails.taskName,
         },
         {
           name: 'Munkavégző',
@@ -181,7 +203,7 @@ app.get('/form/metadata', async (req, res) => {
             },
           ],
           width: 'half',
-          value: userDetails.email, // Set default value to the current user
+          value: userDetails.email,
         },
         {
           name: 'Rendszám',
@@ -282,7 +304,7 @@ app.get('/form/metadata', async (req, res) => {
           id: 'date',
           is_required: false,
           placeholder: 'Dátum',
-          value: currentDate, // Set initial value to current date
+          value: currentDate,
         },
         {
           name: "Kilométer",
@@ -352,7 +374,7 @@ app.post('/search/attach', (req, res) => {
   res.json(attachment_response);
 });
 
-app.post('/form/submit', async (req, res) => { // Asynchronous function
+app.post('/form/submit', async (req, res) => {
   console.log('Modal Form submitted!');
   
   if (req.body.data) {
@@ -383,7 +405,12 @@ app.post('/form/submit', async (req, res) => { // Asynchronous function
       await storiesApiInstance.createStoryForTask(taskDetails.taskId, commentBody);
       
       // Update custom field value for the task
-      await updateCustomField(taskDetails.taskId, taskDetails.projectId, 'Kilométer', totalKilometers);
+      //await updateCustomField(taskDetails.taskId, taskDetails.projectId, 'Kilométer', totalKilometers);
+
+      // Run PowerShell script to update custom field in Asana
+      const asanaAccessToken = process.env.ASANA_ACCESS_TOKEN; // Ensure the token is set correctly
+      const customFieldId = await getCustomFieldIdByName(taskDetails.projectId, 'Kilométer');
+      await runPowerShellScript(taskDetails.taskId, customFieldId, asanaAccessToken,totalKilometers);
 
       // Send the response including the total kilometers
       res.json({ attachment_response, totalKilometers });
