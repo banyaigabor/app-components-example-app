@@ -103,7 +103,8 @@ async function updateCustomField(taskId, projectId, totalKilometers) {
     const customFieldGid = await getCustomFieldIdByName(projectId, 'Kilométer');
     console.log([customFieldGid]);
     let body = {"data":{"custom_fields":{customFieldGid:totalKilometers}}}; // Object | The task to update.
-
+    console.log("-----");
+    console.log(body);
     let opts = {};
     tasksApiInstance.updateTask(body, taskId, opts).then((result) => {
         console.log('API called successfully.');
