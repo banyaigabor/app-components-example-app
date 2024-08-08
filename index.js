@@ -3,11 +3,12 @@ const cors = require('cors');
 const path = require('path');
 const { logWorkspaceList, submitDataToSheet, getRowsByTaskID } = require('./smartsheet');
 const { getTaskDetails, getUserDetails, getCustomFieldsForProject, updateCustomField,getCustomFieldIdByName, storiesApiInstance } = require('./asana');
-const {Powershell} = require('node-powershell');
+
+const NodePowershell = require('node-powershell');
 const app = express();
 const port = process.env.PORT || 8000;
 let submittedData = {};
-let ps = new Powershell();
+
 // Parse JSON bodies
 app.use(express.json());
 
@@ -46,7 +47,7 @@ function formatDate(date) {
 
 // Function to run PowerShell script
 async function runPowerShellScript(taskId, customFieldId, asanaAccessToken) {
-
+  let psh = new NodePowershell();
 
   const script = `
   $headers=@{}
@@ -56,7 +57,7 @@ async function runPowerShellScript(taskId, customFieldId, asanaAccessToken) {
   $response = Invoke-WebRequest -Uri 'https://app.asana.com/api/1.0/tasks/${taskId}' -Method PUT -Headers $headers -ContentType 'application/json' -Body '{"data":{"custom_fields":{"${customFieldId}":"123"}}}'
   `;
 
-  ps.addCommand(script);
+  psh.addCommand(script);
 
   try {
     const output = await ps.invoke();
@@ -64,7 +65,7 @@ async function runPowerShellScript(taskId, customFieldId, asanaAccessToken) {
   } catch (error) {
     console.error(error);
   } finally {
-    ps.dispose();
+    psh.dispose();
   }
 }
 
