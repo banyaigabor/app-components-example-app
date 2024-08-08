@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { logWorkspaceList, submitDataToSheet, getRowsByTaskID } = require('./smartsheet');
-const { getTaskDetails, getUserDetails, getCustomFieldsForProject, updateCustomField, storiesApiInstance } = require('./asana');
+const { getTaskDetails, getUserDetails, getCustomFieldsForProject, updateCustomField, createCommentForTask, storiesApiInstance } = require('./asana');
 const app = express();
 const port = process.env.PORT || 8000;
 let submittedData = {};
@@ -13,11 +13,10 @@ app.use(express.json());
 // Enable CORS for specific origin
 app.use(cors({
   origin: 'https://app.asana.com',
-
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true // Include credentials if needed
 }));
-
-// Handle OPTIONS requests before other middleware
-
 
 // Run before every API request
 app.use((req, res, next) => {
@@ -379,12 +378,8 @@ app.post('/form/submit', async (req, res) => { // Asynchronous function
 
       // Read back the rows from the Smartsheet and calculate the total distance
       const { filteredRows, totalKilometers } = await getRowsByTaskID(3802479470110596, 'ASANA Proba', 'Teszt01', taskDetails.taskId);
-      const commentBody = {
-        data: {
-          text: `Beírt kilométer: ${submittedData.Distance_SL}, összesen: ${totalKilometers}`
-        }
-      };
-      await storiesApiInstance.createStoryForTask(commentBody, taskDetails.taskId);
+      const commentText = `Beírt kilométer: ${submittedData.Distance_SL}, összesen: ${totalKilometers}`;
+      await createCommentForTask(taskDetails.taskId, userDetails.gid, commentText);
       
       // Update custom field value for the task
       await updateCustomField(taskDetails.taskId, taskDetails.projectId, totalKilometers);

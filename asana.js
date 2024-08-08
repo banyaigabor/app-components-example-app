@@ -10,6 +10,7 @@ let tasksApiInstance = new Asana.TasksApi();
 let projectsApiInstance = new Asana.ProjectsApi();
 let usersApiInstance = new Asana.UsersApi();
 let customFieldSettingsApiInstance = new Asana.CustomFieldSettingsApi();
+let customFieldsApiInstance = new Asana.CustomFieldsApi();
 
 // Function to get task details from Asana
 async function getTaskDetails(taskId) {
@@ -105,19 +106,35 @@ async function updateCustomField(taskId, projectId, totalKilometers) {
       return;
     }
 
-    // Prepare the custom field update data
-    let updateData = {
-      data: {
-        custom_fields: {}
+    let customFieldValue = { 
+      'body': { 
+        'data': { 
+          'number_value': totalKilometers 
+        }
       }
     };
-    updateData.data.custom_fields[customFieldGid] = totalKilometers;
 
-    // Update the task with the custom field value
-    await tasksApiInstance.updateTask(taskId, updateData);
+    // Update the custom field value
+    await customFieldsApiInstance.updateCustomField(customFieldGid, customFieldValue);
     console.log(`Custom field 'Kilométer' updated successfully for task ${taskId} with ${totalKilometers} kilometers.`);
   } catch (error) {
     console.error('Error updating custom field:', error.message);
+    throw error;
+  }
+}
+
+// Function to create a comment for a task
+async function createCommentForTask(taskId, userId, commentText) {
+  try {
+    const commentBody = {
+      data: {
+        text: commentText
+      }
+    };
+    await storiesApiInstance.createStoryForTask(taskId, commentBody, { headers: { "Asana-User": userId } });
+    console.log(`Comment created successfully for task ${taskId} by user ${userId}.`);
+  } catch (error) {
+    console.error('Error creating comment:', error.message);
     throw error;
   }
 }
@@ -127,5 +144,6 @@ module.exports = {
   getUserDetails,
   getCustomFieldsForProject,
   updateCustomField,
+  createCommentForTask,
   storiesApiInstance
 };
