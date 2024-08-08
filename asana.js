@@ -1,5 +1,5 @@
-import fetch from 'node-fetch';
 const Asana = require('asana');
+
 // Initialize Asana client
 let client = Asana.ApiClient.instance;
 let token = client.authentications['token'];
@@ -97,35 +97,33 @@ async function getCustomFieldIdByName(projectId, fieldName) {
 }
 
 // Function to update the custom field value
-async function updateCustomField(taskId, projectId, fieldName, value) {
+async function updateCustomField(taskId, projectId, totalKilometers) {
   try {
-    const customFieldGid = await getCustomFieldIdByName(projectId, fieldName);
+    // Get the custom field ID by name
+    const customFieldGid = await getCustomFieldIdByName(projectId, 'Kilométer');
     if (!customFieldGid) {
-      console.log(`Custom field "${fieldName}" not found.`);
+      console.log('Custom field "Kilométer" not found.');
       return;
     }
 
-    const options = {
-      method: 'PUT',
-      headers: {
-        accept: 'application/json',
-        'content-type': 'application/json',
-        authorization: `Bearer ${process.env.ASANA_ACCESS_TOKEN}`
-      },
-      body: JSON.stringify({data: {custom_fields: {[customFieldGid]: value}}})
+    let customFieldValue = { 
+      'body': { 
+        'data': { 
+          'number_value': totalKilometers 
+        }
+      }
     };
 
-    const response = await fetch(`https://app.asana.com/api/1.0/tasks/${taskId}`, options);
-    const data = await response.json();
-    console.log(`Custom field "${fieldName}" updated successfully for task ${taskId} with value ${value}.`);
-    return data;
+    // Update the custom field value
+    await customFieldsApiInstance.updateCustomField(customFieldGid, customFieldValue);
+    console.log(`Custom field 'Kilométer' updated successfully for task ${taskId} with ${totalKilometers} kilometers.`);
   } catch (error) {
     console.error('Error updating custom field:', error.message);
     throw error;
   }
 }
 
-export {
+module.exports = {
   getTaskDetails,
   getUserDetails,
   getCustomFieldsForProject,
