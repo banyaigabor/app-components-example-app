@@ -379,7 +379,6 @@ app.post('/form/submit', async (req, res) => { // Asynchronous function
       const { filteredRows, totalKilometers } = await getRowsByTaskID(3802479470110596, 'ASANA Proba', 'Teszt01', taskDetails.taskId);
       const commentText = `Beírt kilométer: ${submittedData.Distance_SL}, összesen: ${totalKilometers}`;
       await createCommentForTask(taskDetails.taskId, userDetails.gid, commentText);
-      
       // Update custom field value for the task
       await updateCustomField(taskDetails.taskId, taskDetails.projectId, totalKilometers);
 

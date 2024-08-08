@@ -61,6 +61,7 @@ async function getUserDetails(userId) {
     return {
       email: user.email,
       name: user.name,
+      gid: user.gid
     };
   } catch (error) {
     console.error('Error fetching user details from Asana:', error.message);
