@@ -14,7 +14,7 @@ let customFieldSettingsApiInstance = new Asana.CustomFieldSettingsApi();
 let customFieldsApiInstance = new Asana.CustomFieldsApi();
 
 // Function to get task details from Asana
-export async function getTaskDetails(taskId) {
+async function getTaskDetails(taskId) {
   let opts = { 
     'opt_fields': "name,projects"
   };
@@ -50,7 +50,7 @@ export async function getTaskDetails(taskId) {
 }
 
 // Function to get user details from Asana
-export async function getUserDetails(userId) {
+async function getUserDetails(userId) {
   let opts = { 
     'opt_fields': "email,name"
   };
@@ -70,7 +70,7 @@ export async function getUserDetails(userId) {
 }
 
 // Function to fetch custom fields for a project
-export async function getCustomFieldsForProject(projectId) {
+async function getCustomFieldsForProject(projectId) {
   let opts = { 
     'limit': 50, 
     'opt_fields': "custom_field,custom_field.name,custom_field.type"
@@ -86,7 +86,7 @@ export async function getCustomFieldsForProject(projectId) {
 }
 
 // Function to get the custom field ID by name
-export async function getCustomFieldIdByName(projectId, fieldName) {
+async function getCustomFieldIdByName(projectId, fieldName) {
   try {
     const customFields = await getCustomFieldsForProject(projectId);
     const customField = customFields.find(field => field.custom_field.name === fieldName);
@@ -97,10 +97,9 @@ export async function getCustomFieldIdByName(projectId, fieldName) {
   }
 }
 
-// Function to update the custom field value for a task
-export async function updateCustomField(taskId, projectId, fieldName, fieldValue) {
+// Function to update the custom field value
+async function updateCustomField(taskId, projectId, fieldName, value) {
   try {
-    // Get the custom field ID by name
     const customFieldGid = await getCustomFieldIdByName(projectId, fieldName);
     if (!customFieldGid) {
       console.log(`Custom field "${fieldName}" not found.`);
@@ -114,17 +113,23 @@ export async function updateCustomField(taskId, projectId, fieldName, fieldValue
         'content-type': 'application/json',
         authorization: `Bearer ${process.env.ASANA_ACCESS_TOKEN}`
       },
-      body: JSON.stringify({ data: { custom_fields: { [customFieldGid]: fieldValue } } })
+      body: JSON.stringify({data: {custom_fields: {[customFieldGid]: value}}})
     };
 
     const response = await fetch(`https://app.asana.com/api/1.0/tasks/${taskId}`, options);
-    const result = await response.json();
-    console.log(`Custom field "${fieldName}" updated successfully for task ${taskId} with value ${fieldValue}.`);
-    console.log(result);
+    const data = await response.json();
+    console.log(`Custom field "${fieldName}" updated successfully for task ${taskId} with value ${value}.`);
+    return data;
   } catch (error) {
     console.error('Error updating custom field:', error.message);
     throw error;
   }
 }
 
-export { storiesApiInstance };
+export {
+  getTaskDetails,
+  getUserDetails,
+  getCustomFieldsForProject,
+  updateCustomField,
+  storiesApiInstance
+};
