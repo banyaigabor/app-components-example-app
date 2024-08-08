@@ -13,6 +13,7 @@ app.use(express.json());
 // Enable CORS for specific origin
 app.use(cors({
   origin: 'https://app.asana.com',
+
 }));
 
 // Handle OPTIONS requests before other middleware

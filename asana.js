@@ -101,7 +101,7 @@ async function updateCustomField(taskId, projectId, totalKilometers) {
     // Get the custom field ID by name
     const customFieldGid = await getCustomFieldIdByName(projectId, 'Kilométer');
     if (!customFieldGid) {
-      console.log('Custom field "Kilométerköltség" not found.');
+      console.log('Custom field "Kilométer" not found.');
       return;
     }
 
@@ -112,8 +112,8 @@ async function updateCustomField(taskId, projectId, totalKilometers) {
     updateData.custom_fields[customFieldGid] = totalKilometers;
 
     // Update the task with the custom field value
-    await tasksApiInstance.updateTask(taskId, { data: updateData });
-    console.log(`Custom field 'Kilométerköltség' updated successfully for task ${taskId} with ${totalKilometers} kilometers.`);
+    await tasksApiInstance.updateTask(taskId, updateData);
+    console.log(`Custom field 'Kilométer' updated successfully for task ${taskId} with ${totalKilometers} kilometers.`);
   } catch (error) {
     console.error('Error updating custom field:', error.message);
     throw error;
