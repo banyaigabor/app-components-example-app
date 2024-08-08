@@ -61,7 +61,6 @@ async function getUserDetails(userId) {
     return {
       email: user.email,
       name: user.name,
-      gid: user.gid
     };
   } catch (error) {
     console.error('Error fetching user details from Asana:', error.message);
@@ -124,27 +123,10 @@ async function updateCustomField(taskId, projectId, totalKilometers) {
   }
 }
 
-// Function to create a comment for a task
-async function createCommentForTask(taskId, userId, commentText) {
-  try {
-    const commentBody = {
-      data: {
-        text: commentText
-      }
-    };
-    await storiesApiInstance.createStoryForTask(taskId, commentBody, { headers: { "Asana-User": userId } });
-    console.log(`Comment created successfully for task ${taskId} by user ${userId}.`);
-  } catch (error) {
-    console.error('Error creating comment:', error.message);
-    throw error;
-  }
-}
-
 module.exports = {
   getTaskDetails,
   getUserDetails,
   getCustomFieldsForProject,
   updateCustomField,
-  createCommentForTask,
   storiesApiInstance
 };
