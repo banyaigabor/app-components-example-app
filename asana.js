@@ -100,7 +100,7 @@ async function getCustomFieldIdByName(projectId, fieldName) {
 async function updateCustomField(taskId, projectId, totalKilometers) {
   try {
     // Get the custom field ID by name
-    const customFieldGid = await getCustomFieldIdByName(projectId, 'Kilométerköltség');
+    const customFieldGid = await getCustomFieldIdByName(projectId, 'Kilométer');
     if (!customFieldGid) {
       console.log('Custom field "Kilométerköltség" not found.');
       return;
