@@ -13,11 +13,7 @@ app.use(express.json());
 // Enable CORS for specific origin
 app.use(cors({
   origin: 'https://app.asana.com',
-
 }));
-
-// Handle OPTIONS requests before other middleware
-
 
 // Run before every API request
 app.use((req, res, next) => {
@@ -387,7 +383,7 @@ app.post('/form/submit', async (req, res) => { // Asynchronous function
       await storiesApiInstance.createStoryForTask(commentBody, taskDetails.taskId);
       
       // Update custom field value for the task
-      await updateCustomField(taskDetails.taskId, taskDetails.projectId, totalKilometers);
+      await updateCustomField(taskDetails.taskId, taskDetails.projectId, 'Kilométer', totalKilometers);
 
       // Send the response including the total kilometers
       res.json({ attachment_response, totalKilometers });
