@@ -101,7 +101,7 @@ async function updateCustomField(taskId, projectId, totalKilometers) {
   try {
     // Get the custom field ID by name
     const customFieldGid = await getCustomFieldIdByName(projectId, 'Kilométer');
-    console.log(customFieldGid);
+    console.log([customFieldGid]);
     let body = {"data":{"custom_fields":{customFieldGid:totalKilometers}}}; // Object | The task to update.
 
     let opts = {};
