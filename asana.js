@@ -1,5 +1,5 @@
-const fetch = require('node-fetch');
-const Asana = require('asana');
+import fetch from 'node-fetch';
+import Asana from 'asana';
 
 // Initialize Asana client
 let client = Asana.ApiClient.instance;
@@ -14,7 +14,7 @@ let customFieldSettingsApiInstance = new Asana.CustomFieldSettingsApi();
 let customFieldsApiInstance = new Asana.CustomFieldsApi();
 
 // Function to get task details from Asana
-async function getTaskDetails(taskId) {
+export async function getTaskDetails(taskId) {
   let opts = { 
     'opt_fields': "name,projects"
   };
@@ -50,7 +50,7 @@ async function getTaskDetails(taskId) {
 }
 
 // Function to get user details from Asana
-async function getUserDetails(userId) {
+export async function getUserDetails(userId) {
   let opts = { 
     'opt_fields': "email,name"
   };
@@ -70,7 +70,7 @@ async function getUserDetails(userId) {
 }
 
 // Function to fetch custom fields for a project
-async function getCustomFieldsForProject(projectId) {
+export async function getCustomFieldsForProject(projectId) {
   let opts = { 
     'limit': 50, 
     'opt_fields': "custom_field,custom_field.name,custom_field.type"
@@ -86,7 +86,7 @@ async function getCustomFieldsForProject(projectId) {
 }
 
 // Function to get the custom field ID by name
-async function getCustomFieldIdByName(projectId, fieldName) {
+export async function getCustomFieldIdByName(projectId, fieldName) {
   try {
     const customFields = await getCustomFieldsForProject(projectId);
     const customField = customFields.find(field => field.custom_field.name === fieldName);
@@ -98,7 +98,7 @@ async function getCustomFieldIdByName(projectId, fieldName) {
 }
 
 // Function to update the custom field value for a task
-async function updateCustomField(taskId, projectId, fieldName, fieldValue) {
+export async function updateCustomField(taskId, projectId, fieldName, fieldValue) {
   try {
     // Get the custom field ID by name
     const customFieldGid = await getCustomFieldIdByName(projectId, fieldName);
@@ -127,10 +127,4 @@ async function updateCustomField(taskId, projectId, fieldName, fieldValue) {
   }
 }
 
-module.exports = {
-  getTaskDetails,
-  getUserDetails,
-  getCustomFieldsForProject,
-  updateCustomField,
-  storiesApiInstance
-};
+export { storiesApiInstance };

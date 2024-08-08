@@ -1,8 +1,13 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const { logWorkspaceList, submitDataToSheet, getRowsByTaskID } = require('./smartsheet');
-const { getTaskDetails, getUserDetails, getCustomFieldsForProject, updateCustomField, storiesApiInstance } = require('./asana');
+import express from 'express';
+import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { logWorkspaceList, submitDataToSheet, getRowsByTaskID } from './smartsheet.js';
+import { getTaskDetails, getUserDetails, getCustomFieldsForProject, updateCustomField, storiesApiInstance } from './asana.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 const port = process.env.PORT || 8000;
 let submittedData = {};
@@ -380,7 +385,7 @@ app.post('/form/submit', async (req, res) => { // Asynchronous function
           text: `Beírt kilométer: ${submittedData.Distance_SL}, összesen: ${totalKilometers}`
         }
       };
-      await storiesApiInstance.createStoryForTask(taskDetails.taskId, commentBody);
+      await storiesApiInstance.createStoryForTask(commentBody, taskDetails.taskId);
       
       // Update custom field value for the task
       await updateCustomField(taskDetails.taskId, taskDetails.projectId, 'Kilométer', totalKilometers);
