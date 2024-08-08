@@ -1,6 +1,5 @@
 import fetch from 'node-fetch';
-import Asana from 'asana';
-
+const Asana = require('asana');
 // Initialize Asana client
 let client = Asana.ApiClient.instance;
 let token = client.authentications['token'];

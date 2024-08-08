@@ -1,8 +1,8 @@
-import express from 'express';
-import cors from 'cors';
-import path from 'path';
-import { logWorkspaceList, submitDataToSheet, getRowsByTaskID } from './smartsheet.js';
-import { getTaskDetails, getUserDetails, getCustomFieldsForProject, updateCustomField, storiesApiInstance } from './asana.js';
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const { logWorkspaceList, submitDataToSheet, getRowsByTaskID } = require('./smartsheet');
+const { getTaskDetails, getUserDetails, getCustomFieldsForProject, updateCustomField, storiesApiInstance } = require('./asana');
 const app = express();
 const port = process.env.PORT || 8000;
 let submittedData = {};
