@@ -7,7 +7,10 @@ const {Powershell} = require('node-powershell');
 const app = express();
 const port = process.env.PORT || 8000;
 let submittedData = {};
-
+let ps = new Powershell({
+  executionPolicy: 'Bypass',
+  noProfile: true
+});
 // Parse JSON bodies
 app.use(express.json());
 
@@ -46,10 +49,7 @@ function formatDate(date) {
 
 // Function to run PowerShell script
 async function runPowerShellScript(taskId, customFieldId, asanaAccessToken) {
-  let ps = new Powershell({
-    executionPolicy: 'Bypass',
-    noProfile: true
-  });
+
 
   const script = `
   $headers=@{}
