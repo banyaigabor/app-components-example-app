@@ -16,7 +16,7 @@ app.use(cors({
 }));
 
 // Handle OPTIONS requests before other middleware
-app.options('*', cors());
+
 
 // Run before every API request
 app.use((req, res, next) => {
