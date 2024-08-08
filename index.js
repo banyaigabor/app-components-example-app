@@ -7,10 +7,7 @@ const {Powershell} = require('node-powershell');
 const app = express();
 const port = process.env.PORT || 8000;
 let submittedData = {};
-let ps = new Powershell({
-  executionPolicy: 'Bypass',
-  noProfile: true
-});
+let ps = new Powershell();
 // Parse JSON bodies
 app.use(express.json());
 
