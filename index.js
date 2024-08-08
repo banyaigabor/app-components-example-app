@@ -6,7 +6,7 @@ const { getTaskDetails, getUserDetails, getCustomFieldsForProject, updateCustomF
 const app = express();
 const port = process.env.PORT || 8000;
 let submittedData = {};
-
+let userDetails;
 // Parse JSON bodies
 app.use(express.json());
 
@@ -66,7 +66,7 @@ app.get('/form/metadata', async (req, res) => {
   }
 
   // Get user details from Asana
-  let userDetails;
+  
   try {
     userDetails = await getUserDetails(user);
   } catch (error) {
