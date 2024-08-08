@@ -13,9 +13,8 @@ app.use(express.json());
 // Enable CORS for specific origin
 app.use(cors({
   origin: 'https://app.asana.com',
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true // Include credentials if needed
+
+
 }));
 
 // Run before every API request
