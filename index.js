@@ -1,5 +1,6 @@
 const express = require('express');
-const cors = require('cors');
+
+//const cors = require('cors');
 const path = require('path');
 const { logWorkspaceList, submitDataToSheet, getRowsByTaskID } = require('./smartsheet');
 const { getTaskDetails, getUserDetails, getCustomFieldsForProject, updateCustomField, storiesApiInstance } = require('./asana');
@@ -9,7 +10,7 @@ let submittedData = {};
 
 // Parse JSON bodies
 app.use(express.json());
-
+/*
 // Enable CORS for specific origin with credentials
 app.use(cors({
   origin: 'https://app.asana.com',
@@ -31,7 +32,7 @@ app.use((req, res, next) => {
   }
 });
 
-
+*/
 // Run before every API request
 app.use((req, res, next) => {
   const expirationDate = req.query.expires_at || req.body.expires_at;
