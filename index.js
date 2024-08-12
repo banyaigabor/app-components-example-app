@@ -13,10 +13,13 @@ app.use(express.json());
 // Enable CORS for specific origin
 app.use(cors({
   origin: 'https://app.asana.com',
+  credentials: true
 }));
 
 // Run before every API request
 app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://app.asana.com');
+  res.header('Access-Control-Allow-Credentials', 'true');
   const expirationDate = req.query.expires_at || req.body.expires_at;
   const currentDate = new Date();
 
