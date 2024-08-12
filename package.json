@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"No test specified\"",
-    "start": "node index",
-    "dev": "nodemon index"
+    "test": "echo \"No tests specified\"",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "author": "",
   "license": "ISC",
