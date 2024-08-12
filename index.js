@@ -285,7 +285,7 @@ app.get('/form/metadata', async (req, res) => {
           value: currentDate, // Set initial value to current date
         },
         {
-          name: "Kilométer",
+          name: "Távolság",
           type: "single_line_text",
           id: "Distance_SL",
           is_required: false,
@@ -293,6 +293,16 @@ app.get('/form/metadata', async (req, res) => {
           width: "half",
           value: "0",
         },
+        {
+          name: "Útidő",
+          type: "time",
+          id: "Distance_Time_SL",
+          is_required: false,
+          placeholder: "0",
+          width: "half",
+          value: "0",
+        },
+        
         {
           name: "Szerepkör",
           type: "radio_button",
