@@ -10,29 +10,14 @@ let submittedData = {};
 
 // Parse JSON bodies
 app.use(express.json());
-/*
+
 // Enable CORS for specific origin with credentials
 app.use(cors({
   origin: 'https://app.asana.com',
-  credentials: false
+
 }));
 
-// Custom CORS headers
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://app.asana.com');
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
-  res.header('Access-Control-Allow-Credentials', 'false');
-  
-  // Handle preflight requests
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-  } else {
-    next();
-  }
-});
 
-*/
 // Run before every API request
 app.use((req, res, next) => {
   const expirationDate = req.query.expires_at || req.body.expires_at;
