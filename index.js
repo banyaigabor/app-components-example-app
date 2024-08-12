@@ -124,59 +124,59 @@ app.get('/form/metadata', async (req, res) => {
           is_required: true,
           options: [
             {
-              id: 'banyai.gabor@promir.hu',
+              id: 'Bányai Gábor',
               label: 'Bányai Gábor',
             },
             {
-              id: 'bozoki.robert@promir.hu',
+              id: 'Bozóki Róbert',
               label: 'Bozóki Róbert',
             },
             {
-              id: 'bondar.balazs@promir.hu',
+              id: 'Bondár Balázs',
               label: 'Bondár Balázs',
             },
             {
-              id: 'deak.adam@promir.hu',
+              id: 'Deák Ádám',
               label: 'Deák Ádám',
             },
             {
-              id: 'keller.zoltan@promir.hu',
+              id: 'Keller Zoltán',
               label: 'Keller Zoltán',
             },
             {
-              id: 'klein.antal@promir.hu',
+              id: 'Klein Antal',
               label: 'Klein Antal',
             },
             {
-              id: 'mendei.arpad@promir.hu',
+              id: 'Mendei Árpád',
               label: 'Mendei Árpád',
             },
             {
-              id: 'palecska.gabor@promir.hu',
+              id: 'Palecska Gábor',
               label: 'Palecska Gábor',
             },
             {
-              id: 'sinka.balazs@promir.hu',
+              id: 'Sinka Balázs',
               label: 'Sinka Balázs',
             },
             {
-              id: 'szancsik.ferenc@promir.hu',
+              id: 'Szancsik Ferenc',
               label: 'Szancsik Ferenc',
             },
             {
-              id: 'szepesi.robert@promir.hu',
+              id: 'Szepesi Róbert',
               label: 'Szepesi Róbert',
             },
             {
-              id: 'szollosi.sandor@promir.hu',
+              id: 'Szöllősi Sándor',
               label: 'Szöllősi Sándor',
             },
             {
-              id: 'vargatot@promir.hu',
+              id: 'Varga-Tóth István',
               label: 'Varga-Tóth István',
             },
             {
-              id: 'vtadam@promir.hu',
+              id: 'Varga-Tóth Ádám',
               label: 'Varga-Tóth Ádám',
             },
           ],
