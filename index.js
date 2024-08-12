@@ -384,7 +384,8 @@ app.post('/form/submit', async (req, res) => { // Asynchronous function
       //await submitDataToSheet(3802479470110596, 'ASANA Proba', 'Teszt01', submittedData);
       await submitDataToSheet(8740124331665284, 'Munkaidő és kiszállás', 'Projektköltségek', submittedData);
       // Read back the rows from the Smartsheet and calculate the total distance
-      const { filteredRows, totalKilometers } = await getRowsByTaskID(3802479470110596, 'ASANA Proba', 'Teszt01', taskDetails.taskId);
+      //const { filteredRows, totalKilometers } = await getRowsByTaskID(3802479470110596, 'ASANA Proba', 'Teszt01', taskDetails.taskId);
+      const { filteredRows, totalKilometers } = await getRowsByTaskID(8740124331665284, 'Munkaidő és kiszállás', 'Projektköltségek', taskDetails.taskId);
       const commentBody = {
         data: {
           text: `Beírt kilométer: ${submittedData.Distance_SL}, összesen: ${totalKilometers}`

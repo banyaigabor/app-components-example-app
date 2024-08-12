@@ -22,7 +22,7 @@ const columnMapping = {
   ProjectName_SL: 'Projektnév',
   AsanaTaskName_SL: 'ASANA TaskName',
   Worker_dropdown: 'Munkavégző',
-  date: 'Munkavégzés Dátuma',
+  date: 'Munkavégzés dátuma',
   Distance_SL: 'Távolság',
   Distance_Time_SL: 'Útidő (ó)',
   radio_button: 'Szerepkör',
