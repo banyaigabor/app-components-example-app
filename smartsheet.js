@@ -114,9 +114,9 @@ async function getRowsByTaskID(workspaceId, folderName, sheetName, taskId) {
     const taskIdColumn = sheetDetails.columns.find(col => col.title === 'ASANA TaskID');
     if (!taskIdColumn) throw new Error('ASANA TaskID column not found');
 
-    // Find the column ID for the 'Kilométer' column
-    const kilometerColumn = sheetDetails.columns.find(col => col.title === 'Kilométer');
-    if (!kilometerColumn) throw new Error('Kilométer column not found');
+    // Find the column ID for the 'Távolság' column
+    const kilometerColumn = sheetDetails.columns.find(col => col.title === 'Távolság');
+    if (!kilometerColumn) throw new Error('Távolság column not found');
 
     // Filter rows by Task ID and sum the kilometers
     const filteredRows = sheetDetails.rows.filter(row => {
