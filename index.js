@@ -295,7 +295,7 @@ app.get('/form/metadata', async (req, res) => {
         },
         {
           name: "Útidő",
-          type: "time",
+          type: "single_line_text",
           id: "Distance_Time_SL",
           is_required: false,
           placeholder: "0",
