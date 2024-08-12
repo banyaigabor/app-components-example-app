@@ -61,6 +61,8 @@ async function submitDataToSheet(workspaceId, folderName, sheetName, submittedDa
       return map;
     }, {});
 
+  
+
     // Prepare the row data
     const row = {
       toBottom: true,
@@ -77,12 +79,11 @@ async function submitDataToSheet(workspaceId, folderName, sheetName, submittedDa
       })
     };
 
-    console.log('Prepared row for submission:', JSON.stringify(row, null, 2));
+    
 
     // Add the row to the sheet
-    const response = await smartsheetClient.sheets.addRows({ sheetId: sheet.id, body: [row] });
-    console.log('Data submitted to Smartsheet:', response);
-
+    await smartsheetClient.sheets.addRows({ sheetId: sheet.id, body: [row] });
+    console.log('Data submitted to Smartsheet');
   } catch (error) {
     console.error('Error submitting data to Smartsheet:', error.message);
   }

@@ -285,7 +285,7 @@ app.get('/form/metadata', async (req, res) => {
           value: currentDate, // Set initial value to current date
         },
         {
-          name: "Távolság",
+          name: "Távolság (km)",
           type: "single_line_text",
           id: "Distance_SL",
           is_required: false,
@@ -294,7 +294,7 @@ app.get('/form/metadata', async (req, res) => {
           value: "0",
         },
         {
-          name: "Útidő",
+          name: "Útidő (óra)",
           type: "single_line_text",
           id: "Distance_Time_SL",
           is_required: false,
@@ -381,8 +381,8 @@ app.post('/form/submit', async (req, res) => { // Asynchronous function
       logWorkspaceList();
 
       // Submit the data to Smartsheet
-      await submitDataToSheet(3802479470110596, 'ASANA Proba', 'Teszt01', submittedData);
-
+      //await submitDataToSheet(3802479470110596, 'ASANA Proba', 'Teszt01', submittedData);
+      await submitDataToSheet(8740124331665284, 'Munkaidő és kiszállás', 'Projektköltségek', submittedData);
       // Read back the rows from the Smartsheet and calculate the total distance
       const { filteredRows, totalKilometers } = await getRowsByTaskID(3802479470110596, 'ASANA Proba', 'Teszt01', taskDetails.taskId);
       const commentBody = {
