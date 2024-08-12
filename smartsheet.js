@@ -61,7 +61,13 @@ async function submitDataToSheet(workspaceId, folderName, sheetName, submittedDa
       return map;
     }, {});
 
-  
+    // Check if Distance_Time_SL is empty or 0 and calculate if necessary
+    if (!submittedData.Distance_Time_SL || submittedData.Distance_Time_SL == 0) {
+      const distance = parseFloat(submittedData.Distance_SL) || 0;
+      const calculatedTime = (distance / 70).toFixed(2);
+      submittedData.Distance_Time_SL = calculatedTime;
+      console.log(`km: ${distance} - beírandó érték: ${calculatedTime}`);
+    }
 
     // Prepare the row data
     const row = {
@@ -78,8 +84,6 @@ async function submitDataToSheet(workspaceId, folderName, sheetName, submittedDa
         };
       })
     };
-
-    
 
     // Add the row to the sheet
     await smartsheetClient.sheets.addRows({ sheetId: sheet.id, body: [row] });
