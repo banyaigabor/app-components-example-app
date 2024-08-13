@@ -424,7 +424,7 @@ app.post('/form/submit', async (req, res) => {
           text: `Beírt kilométer: ${submittedData.Distance_SL}, összesen: ${totalKilometers}`
         }
       };
-      await storiesApiInstance.createStoryForTask(commentBody, taskDetails.taskId);
+      //await storiesApiInstance.createStoryForTask(commentBody, taskDetails.taskId);
       
       // Update custom field value for the task
       await updateCustomField(taskDetails.taskId, taskDetails.projectId, totalKilometers);
