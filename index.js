@@ -90,7 +90,7 @@ app.get('/form/metadata', async (req, res) => {
       title: "Kilométer költség",
       on_submit_callback: 'https://app-components-example-app.onrender.com/form/submit',
       fields: [
-      /*  {
+        {
           name: "Projektszám",
           type: "single_line_text",
           id: "ProjectNumber_SL",
@@ -98,14 +98,14 @@ app.get('/form/metadata', async (req, res) => {
           placeholder: "[full width]",
           width: "full",
           value: taskDetails.projectNumber, // Set initial value from Asana
-        },*/
+        },/*
         {
           "id": "ProjectNumber_SL",
           "name": taskDetails.projectNumber,
           "type": "static_text",
           "style": "default"
         },
-      /*  {
+      */  {
           name: "Projektnév",
           type: "single_line_text",
           id: "ProjectName_SL",
@@ -113,14 +113,14 @@ app.get('/form/metadata', async (req, res) => {
           placeholder: "[full width]",
           width: "full",
           value: taskDetails.projectName, // Set initial value from Asana
-        },*/
+        },/*
         {
           "id": "ProjectName_SL",
           "name": taskDetails.projectName,
           "type": "static_text",
           "style": "default"
         },
-       /* {
+        */{
           name: "ASANA TaskName",
           type: "single_line_text",
           id: "AsanaTaskName_SL",
@@ -128,13 +128,13 @@ app.get('/form/metadata', async (req, res) => {
           placeholder: "[full width]",
           width: "full",
           value: taskDetails.taskName, // Set initial value from Asana
-        },*/
+        },/*
         {
           "id": "AsanaTaskName_SL",
           "name": taskDetails.taskName,
           "type": "static_text",
           "style": "default"
-        },
+        },*/
         {
           name: 'Munkavégző',
           type: 'dropdown',
