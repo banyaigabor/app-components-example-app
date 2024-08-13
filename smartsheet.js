@@ -61,12 +61,14 @@ async function submitDataToSheet(workspaceId, folderName, sheetName, submittedDa
       return map;
     }, {});
 
+    // Ensure Distance_SL is treated as a number
+    submittedData.Distance_SL = parseFloat(submittedData.Distance_SL) || 0;
+
     // Check if Distance_Time_SL is empty or 0 and calculate if necessary
     if (!submittedData.Distance_Time_SL || submittedData.Distance_Time_SL == 0) {
-      const distance = parseFloat(submittedData.Distance_SL) || 0;
-      const calculatedTime = (distance / 70).toFixed(2);
+      const calculatedTime = (submittedData.Distance_SL / 70).toFixed(2);
       submittedData.Distance_Time_SL = calculatedTime;
-      console.log(`km: ${distance} - beírandó érték: ${calculatedTime}`);
+      console.log(`km: ${submittedData.Distance_SL} - beírandó érték: ${calculatedTime}`);
     }
 
     // Prepare the row data

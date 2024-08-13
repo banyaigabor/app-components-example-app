@@ -181,7 +181,7 @@ app.get('/form/metadata', async (req, res) => {
             },
           ],
           width: 'half',
-          value: userDetails.email, // Set default value to the current user
+          value: userDetails.name, // Set default value to the current user
         },
         {
           name: 'Rendszám',
