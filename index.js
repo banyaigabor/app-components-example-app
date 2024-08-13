@@ -298,7 +298,7 @@ app.get('/form/metadata', async (req, res) => {
           name: 'Munkavégzés Dátuma',
           type: 'date',
           id: 'date',
-          is_required: false,
+          is_required: true,
           placeholder: 'Dátum',
           value: currentDate, // Set initial value to current date
         },
@@ -306,7 +306,7 @@ app.get('/form/metadata', async (req, res) => {
           name: "Távolság (km)",
           type: "single_line_text",
           id: "Distance_SL",
-          is_required: false,
+          is_required: true,
           placeholder: "0",
           width: "half",
           value: "0",
