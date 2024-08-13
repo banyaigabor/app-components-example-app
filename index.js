@@ -388,16 +388,19 @@ app.post('/form/submit', async (req, res) => {
       const parsedData = JSON.parse(req.body.data);
       submittedData = parsedData.values || {};
 
-      // Validate the distance and time fields
-      const distance = parseFloat(submittedData.Distance_SL);
-      const travelTime = parseFloat(submittedData.Distance_Time_SL);
+      // Regular expression to match a valid number (optional decimal point)
+      const validNumberRegex = /^\d+(\.\d+)?$/;
 
-      if (isNaN(distance) || distance < 0 || distance > 10000) {
-        return res.status(400).send('Hibás távolság érték. A távolság nem lehet negatív, és maximum 10,000 lehet.');
+      // Validate the distance field
+      const distance = submittedData.Distance_SL;
+      if (!validNumberRegex.test(distance) || parseFloat(distance) < 0 || parseFloat(distance) > 10000) {
+        return res.status(400).send('Hibás távolság érték. A távolság nem lehet negatív, és maximum 10,000 lehet, illetve csak érvényes szám lehet.');
       }
 
-      if (isNaN(travelTime) || travelTime < 0 || travelTime > 24) {
-        return res.status(400).send('Hibás útidő érték. Az útidő nem lehet negatív, és maximum 24 óra lehet.');
+      // Validate the travel time field
+      const travelTime = submittedData.Distance_Time_SL;
+      if (!validNumberRegex.test(travelTime) || parseFloat(travelTime) < 0 || parseFloat(travelTime) > 24) {
+        return res.status(400).send('Hibás útidő érték. Az útidő nem lehet negatív, és maximum 24 óra lehet, illetve csak érvényes szám lehet.');
       }
 
       // Extract task ID from the request body
@@ -409,15 +412,13 @@ app.post('/form/submit', async (req, res) => {
 
       // Log the sheet list to console
       logWorkspaceList();
-
       // Submit the data to Smartsheet
-      //await submitDataToSheet(3802479470110596, 'ASANA Proba', 'Teszt01', submittedData);
-      await submitDataToSheet(8740124331665284, 'Munkaidő és kiszállás', 'Projektköltségek', submittedData);
+     //await submitDataToSheet(3802479470110596, 'ASANA Proba', 'Teszt01', submittedData);
+     await submitDataToSheet(8740124331665284, 'Munkaidő és kiszállás', 'Projektköltségek', submittedData);
 
       // Read back the rows from the Smartsheet and calculate the total distance
       //const { filteredRows, totalKilometers } = await getRowsByTaskID(3802479470110596, 'ASANA Proba', 'Teszt01', taskDetails.taskId);
       const { filteredRows, totalKilometers } = await getRowsByTaskID(8740124331665284, 'Munkaidő és kiszállás', 'Projektköltségek', taskDetails.taskId);
-
       const commentBody = {
         data: {
           text: `Beírt kilométer: ${submittedData.Distance_SL}, összesen: ${totalKilometers}`
@@ -439,6 +440,7 @@ app.post('/form/submit', async (req, res) => {
     res.json(attachment_response);
   }
 });
+
 
 
 const attachment_response = {
