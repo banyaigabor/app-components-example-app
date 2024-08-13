@@ -90,7 +90,7 @@ app.get('/form/metadata', async (req, res) => {
       title: "Kilométer költség",
       on_submit_callback: 'https://app-components-example-app.onrender.com/form/submit',
       fields: [
-        {
+      /*  {
           name: "Projektszám",
           type: "single_line_text",
           id: "ProjectNumber_SL",
@@ -98,8 +98,14 @@ app.get('/form/metadata', async (req, res) => {
           placeholder: "[full width]",
           width: "full",
           value: taskDetails.projectNumber, // Set initial value from Asana
-        },
+        },*/
         {
+          "id": "ProjectNumber_SL",
+          "name": taskDetails.projectNumber,
+          "type": "static_text",
+          "style": "default"
+        },
+      /*  {
           name: "Projektnév",
           type: "single_line_text",
           id: "ProjectName_SL",
@@ -107,8 +113,14 @@ app.get('/form/metadata', async (req, res) => {
           placeholder: "[full width]",
           width: "full",
           value: taskDetails.projectName, // Set initial value from Asana
-        },
+        },*/
         {
+          "id": "ProjectName_SL",
+          "name": taskDetails.projectName,
+          "type": "static_text",
+          "style": "default"
+        },
+       /* {
           name: "ASANA TaskName",
           type: "single_line_text",
           id: "AsanaTaskName_SL",
@@ -116,6 +128,12 @@ app.get('/form/metadata', async (req, res) => {
           placeholder: "[full width]",
           width: "full",
           value: taskDetails.taskName, // Set initial value from Asana
+        },*/
+        {
+          "id": "AsanaTaskName_SL",
+          "name": taskDetails.taskName,
+          "type": "static_text",
+          "style": "default"
         },
         {
           name: 'Munkavégző',
@@ -362,13 +380,25 @@ app.post('/search/attach', (req, res) => {
   res.json(attachment_response);
 });
 
-app.post('/form/submit', async (req, res) => { // Asynchronous function
+app.post('/form/submit', async (req, res) => {
   console.log('Modal Form submitted!');
   
   if (req.body.data) {
     try {
       const parsedData = JSON.parse(req.body.data);
       submittedData = parsedData.values || {};
+
+      // Validate the distance and time fields
+      const distance = parseFloat(submittedData.Distance_SL);
+      const travelTime = parseFloat(submittedData.Distance_Time_SL);
+
+      if (isNaN(distance) || distance < 0 || distance > 10000) {
+        return res.status(400).send('Hibás távolság érték. A távolság nem lehet negatív, és maximum 10,000 lehet.');
+      }
+
+      if (isNaN(travelTime) || travelTime < 0 || travelTime > 24) {
+        return res.status(400).send('Hibás útidő érték. Az útidő nem lehet negatív, és maximum 24 óra lehet.');
+      }
 
       // Extract task ID from the request body
       const taskId = req.body.task || parsedData.task || parsedData.AsanaTaskName_SL;
@@ -383,9 +413,11 @@ app.post('/form/submit', async (req, res) => { // Asynchronous function
       // Submit the data to Smartsheet
       //await submitDataToSheet(3802479470110596, 'ASANA Proba', 'Teszt01', submittedData);
       await submitDataToSheet(8740124331665284, 'Munkaidő és kiszállás', 'Projektköltségek', submittedData);
+
       // Read back the rows from the Smartsheet and calculate the total distance
       //const { filteredRows, totalKilometers } = await getRowsByTaskID(3802479470110596, 'ASANA Proba', 'Teszt01', taskDetails.taskId);
       const { filteredRows, totalKilometers } = await getRowsByTaskID(8740124331665284, 'Munkaidő és kiszállás', 'Projektköltségek', taskDetails.taskId);
+
       const commentBody = {
         data: {
           text: `Beírt kilométer: ${submittedData.Distance_SL}, összesen: ${totalKilometers}`
@@ -407,6 +439,7 @@ app.post('/form/submit', async (req, res) => { // Asynchronous function
     res.json(attachment_response);
   }
 });
+
 
 const attachment_response = {
   resource_name: "I'm an Attachment",
