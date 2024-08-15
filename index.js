@@ -67,7 +67,7 @@ class PromiseQueue {
     if (this.isProcessing || this.queue.length === 0) return;
     
     this.isProcessing = true;
-
+    console.log("Process in queue!!!!BAZDMÖG")
     const { fn, resolve, reject } = this.queue.shift();
 
     try {
